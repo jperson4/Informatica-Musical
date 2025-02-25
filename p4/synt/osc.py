@@ -10,16 +10,23 @@ from synt.function import *
     las características particulares (bpm, etc) se declaran al
     inicializar el objeto correspondiente de la clase Osc o sus derivadas.
 '''
-# TODO: Son un poco redundantes con la clase function, lo mismo podría modificar el sintetizador para que use Function en todas partes
-class Osc:    
+
+class Osc(Function):    
     def __init__(self):
+        self.frame = 0
         pass
     
-    def next(self, freq, tiempo, amp=Const(1), phase=Const(0)):
-        return np.zeros(len(tiempo)) # devuelve vacío
+    def next(self, tiempo = None):
+        if tiempo is None: 
+            tiempo = np.arange(self.frame, self.frame + CHUNK)
+        return self.fun(tiempo) # devuelve vacío
+    
+    # esto va a ser lo que se modifique
+    def fun(self, tiempo):
+        return np.zeros(len(tiempo))
 
-class Sine(Osc):
-    def __init__(self):
+class Sine(Osc): #TODO: poner freq:Funcion
+    def __init__(self, freq, amp=C(1), phase=C(1)):
         super().__init__()
         
     def next(self, freq, tiempo, amp=Const(1), phase=Const(0)):

@@ -26,9 +26,17 @@ class Function:
     
     def __sub__(self, other):
         return Sub(self, other)
-        
-    def next(self, tiempo):
-        pass
+
+    def next(self, tiempo = None):
+        if tiempo is None: 
+            tiempo = np.arange(0, CHUNK)
+        return self.fun(tiempo) # devuelve vacío
+    
+    # esto va a ser lo que se modifique en cada implementacion
+    def fun(self, tiempo):
+        return np.zeros(CHUNK)
+    
+    
     
 class Add(Function): # f(x) = g(x) + h(x)
     def __init__(self, g, h):
