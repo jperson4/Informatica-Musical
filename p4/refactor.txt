@@ -1,0 +1,7 @@
+SYNT -> OSC y quitarle la envolvente
+OSC + ENV -> Nota (tmb podria ser un tipo de osc)
+
+TODO:
+Ver que hacemos con las funciones y los Osc:
+    1- Hacer que los osc puedan actuar como funciones sobre el tiempo (sin otros parametros)
+Hacer un instrumento simpe que funcione más fácilmente y sirva de base para el resto
