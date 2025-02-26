@@ -1,7 +1,6 @@
 import numpy as np
-import sounddevice as sd
-import matplotlib.pyplot as plt
 import scipy.signal as sg
+
 from synt.const import *
 from synt.function import *
 
@@ -12,10 +11,20 @@ from synt.function import *
 '''
 
 class Osc(Function):    
-    def __init__(self):
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0)):
+        super().__init__()
+        self.freq = freq
+        self.phase = phase
         self.frame = 0
-        pass
-    
+        if amp is None:
+            self.max = max
+            self.min = min
+            self.amp = None
+        else: 
+            self.max = None
+            self.min = None
+            self.amp = amp
+            
     def next(self, tiempo = None):
         if tiempo is None: 
             tiempo = np.arange(self.frame, self.frame + CHUNK)
@@ -23,95 +32,140 @@ class Osc(Function):
     
     # esto va a ser lo que se modifique
     def fun(self, tiempo):
-        return np.zeros(len(tiempo))
+        return np.zeros(len(tiempo))        
+            
+    def getFreq(self):
+        return self.freq
 
-class Sine(Osc): #TODO: poner freq:Funcion
-    def __init__(self, freq, amp=C(1), phase=C(1)):
-        super().__init__()
+    def setFreq(self, value):
+        self.freq = value
+
+    def getMax(self):
+        return self.max
+
+    def setMax(self, value):
+        self.max = value
+
+    def getMin(self):
+        return self.min
+
+    def setMin(self, value):
+        self.min = value
+
+    def getAmp(self):
+        return self.amp
+
+    def setAmp(self, value):
+        self.amp = value
+
+    def getPhase(self):
+        return self.phase
+
+    def setPhase(self, value):
+        self.phase = value
+    
+class Sine(Osc): # f(t) = amp * sin(t * 2pi * freq + phase)
+    def __init__(self, freq:Function, max=C(1), min=C(0), amp=None, phase=C(0)):
+        super().__init__(freq, max, min, amp, phase)
         
-    def next(self, freq, tiempo, amp=Const(1), phase=Const(0)):
-        _freq = freq.next(tiempo) # frecuencia sobre el tiempo
-        _amp = amp.next(tiempo) # amplitud sobre el tiempo
-        _phase = phase.next(tiempo) 
-        onda = _amp * np.sin(tiempo * (2 * np.pi * _freq/SRATE) + _phase)
-        return onda
+    def fun(self, tiempo):
+        _freq = self.freq.next(tiempo)
+        _phase = self.phase.next(tiempo)
+        _amp = None
+        _offset = 0
+
+        # si se usa amp o max min
+        if self.amp is None:
+            _amp = (self.max.next(tiempo) - self.min.next(tiempo)) / 2
+            _offset = (self.max.next(tiempo) + self.min.next(tiempo)) / 2
+        else: 
+            _amp = self.amp.next(tiempo)
+        
+        # funcion
+        onda = np.sin(tiempo * (2 * np.pi * _freq/SRATE) + _phase)
+        return onda * _amp + _offset
+    
+class Triangle(Osc): # f(t) = amp * arcsin(sin(t * 2pi * freq + phase)) * 2/pi   -> 2/pi es para que vaya de 1 a -1
+    def __init__(self, freq:Function, max=C(1), min=C(0), amp=None, phase=C(0)):
+        super().__init__(freq, max, min, amp, phase)
+
+    def fun(self, tiempo):
+        _freq = self.freq.next(tiempo)
+        _phase = self.phase.next(tiempo)
+        _amp = None
+        _offset = 0
+
+        # si se usa amp o max min
+        if self.amp is None:
+            _amp = (self.max.next(tiempo) - self.min.next(tiempo)) / 2
+            _offset = (self.max.next(tiempo) + self.min.next(tiempo)) / 2
+        else: 
+            _amp = self.amp.next(tiempo)
+        
+        # funcion
+        onda = (2 / np.pi) * np.arcsin(np.sin(tiempo * (2 * np.pi * _freq/SRATE) + _phase))
+        return onda * _amp + _offset
+    
+class Sawtooth(Osc): # f(t) = amp * arctan(tan(t * 2pi * freq + phase)) * 2/pi   -> 2/pi es para que vaya de 1 a -1
+    def __init__(self, freq:Function, max=C(1), min=C(0), amp=None, phase=C(0)):
+        super().__init__(freq, max, min, amp, phase)
+
+    def fun(self, tiempo):
+        _freq = self.freq.next(tiempo)
+        _phase = self.phase.next(tiempo)
+        _amp = None
+        _offset = 0
+
+        # si se usa amp o max min
+        if self.amp is None:
+            _amp = (self.max.next(tiempo) - self.min.next(tiempo)) / 2
+            _offset = (self.max.next(tiempo) + self.min.next(tiempo)) / 2
+        else: 
+            _amp = self.amp.next(tiempo)
+        
+        onda = (2 / np.pi) * np.arctan(np.tan(tiempo * (1 * np.pi * _freq/SRATE) + _phase))
+        return onda * _amp + _offset
 
 class Square(Osc):
-    def __init__(self, duty=Const(.5)):
-        super().__init__()
-        self.duty = duty
+    def __init__(self, freq:Function, max=C(1), min=C(0), amp=None, phase=C(0), duty=C(.5)):
+        super().__init__(freq, max, min, amp, phase)
+        self.duty = duty # no implementado
 
-    def next(self, freq, tiempo, amp=Const(1), phase=Const(0)):
-        # duty solo se puede usar en valor constante (por ahora)
-        _duty = self.duty.next(tiempo)[0]
-        _freq = freq.next(tiempo)  # frecuencia sobre el tiempo
-        _amp = amp.next(tiempo)  # amplitud sobre el tiempo
-        _phase = phase.next(tiempo)
-        onda = _amp * sg.square(2*np.pi*tiempo*_freq/SRATE+_phase, _duty)
-        return onda
+    def fun(self, tiempo):
+        _freq = self.freq.next(tiempo)
+        _phase = self.phase.next(tiempo)
+        _amp = None
+        _offset = 0
 
-class Triangle(Osc):
-    def __init__(self):
-        super().__init__()
+        # si se usa amp o max min
+        if self.amp is None:
+            _amp = (self.max.next(tiempo) - self.min.next(tiempo)) / 2
+            _offset = (self.max.next(tiempo) + self.min.next(tiempo)) / 2
+        else: 
+            _amp = self.amp.next(tiempo)
         
-    def next(self, freq, tiempo, amp=Const(1), phase=Const(0)):
-        _freq = freq.next(tiempo)  # frecuencia sobre el tiempo
-        _amp = amp.next(tiempo)  # amplitud sobre el tiempo
-        _phase = phase.next(tiempo)
-        onda = _amp * np.arcsin(np.sin(tiempo * (2 * np.pi * _freq/SRATE) + _phase))
-        return onda
-    
-class Sawtooth(Osc):
-    def __init__(self):
-        super().__init__()
+        onda = sg.square((2*np.pi * tiempo) * _freq / SRATE + _phase)
+        return onda * _amp + _offset
+
+class Rep(Osc): # repite una funcion en base a la frecuencia
+    def __init__(self, freq:Function, func:Function, max=C(1), min=C(-1), amp=None, phase=C(0)):
+        super().__init__(freq, max, min, amp, phase)
+        self.func = func
         
-    def next(self, freq, tiempo, amp=Const(1), phase=Const(0)):
-        _freq = freq.next(tiempo)  # frecuencia sobre el tiempo
-        _amp = amp.next(tiempo)  # amplitud sobre el tiempo
-        _phase = phase.next(tiempo)
-        onda = (2 *  _amp / np.pi) * np.arctan(np.tan(tiempo * (1 * np.pi * _freq/SRATE) + _phase))
-        return onda
+    def fun(self, tiempo):
+        _tiempo = tiempo % self.freq.next() 
+        _phase = self.phase.next(_tiempo)
+        _tiempo = tiempo + _phase * SRATE # en este caso la fase son segundos
+        _amp = None
+        _offset = 0
 
-class Kick(Osc):
-    # no se que puede pasar si ponemos una funcion no constante en beat :0
-    def __init__(self, bpm=C(130), beat=C(1), dur=C(1)):
-        super().__init__()
-        self.bpm = bpm
-        self.dur = dur
-        self.beat = beat
-
-    def next(self, freq, tiempo, amp=Const(1), phase=Const(0)):
-        _bpm = self.bpm.next(tiempo)
-        _beat = self.beat.next(tiempo)
-        _negra = (SRATE*60/_bpm)/4
-        _tiempo = (tiempo + _negra * _beat) % (_negra * 4) # desplazamiento del tiempo
-        _freq = freq.next(_tiempo)  # frecuencia sobre el tiempo
-        _amp = amp.next(_tiempo)  # amplitud sobre el tiempo
-        _phase = phase.next(_tiempo)
-        onda = _amp * np.sin((SRATE / self.dur) * (np.pi * _freq/SRATE)/(_tiempo+.1) + _phase)
-        return onda
-
-class Sinc(Osc):
-    def __init__(self):
-        super().__init__()
+        # si se usa amp o max min
+        if self.amp is None:
+            _amp = (self.max.next(_tiempo) - self.min.next(_tiempo)) / 2
+            _offset = (self.max.next(_tiempo) + self.min.next(_tiempo)) / 2
+        else: 
+            _amp = self.amp.next(_tiempo)
         
-    def next(self, freq, tiempo, amp=Const(1), phase=Const(0)):
-        _freq = freq.next(tiempo) # frecuencia sobre el tiempo
-        _amp = amp.next(tiempo) # amplitud sobre el tiempo
-        _phase = phase.next(tiempo) 
-        onda = np.sin(tiempo * 2 * np.pi * _freq/SRATE + _phase) / (tiempo * 2 * np.pi * _freq/SRATE)
-        return onda * _amp
-
-
-class ModSawtooth(Osc):
-    def __init__(self, other:Function):
-        super().__init__()
-        self.other = other
+        onda = self.func.next(_tiempo)
         
-    def next(self, freq, tiempo, amp=Const(1), phase=Const(0)):
-        _freq = freq.next(tiempo)  # frecuencia sobre el tiempo
-        _amp = amp.next(tiempo)  # amplitud sobre el tiempo
-        _phase = phase.next(tiempo)
-        _other = self.other.next(tiempo)
-        onda = (2 *  _amp / np.pi) * np.arctan(np.tan(tiempo * (1 * np.pi * _freq/SRATE) + _phase) + _other)
-        return onda
+        return onda * _amp + _offset
