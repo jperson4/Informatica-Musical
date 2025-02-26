@@ -24,11 +24,6 @@ class Osc(Function):
             self.max = None
             self.min = None
             self.amp = amp
-            
-    def next(self, tiempo = None):
-        if tiempo is None: 
-            tiempo = np.arange(self.frame, self.frame + CHUNK)
-        return self.fun(tiempo) # devuelve vacío
     
     # esto va a ser lo que se modifique
     def fun(self, tiempo):

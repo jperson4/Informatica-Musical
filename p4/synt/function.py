@@ -13,6 +13,7 @@ from synt.const import *
 
 class Function:
     def __init__(self):
+        self.frame = 0 
         pass
     
     def __mul__(self, other):
@@ -34,10 +35,10 @@ class Function:
         return Exp(self)
 
     def next(self, tiempo = None):
-        '''esta función debería dejarse sin tocar (salvo en casos como const donde no sea necesario el tiempo)'''
         if tiempo is None: 
-            tiempo = np.arange(0, CHUNK)
-        return self.fun(tiempo) # devuelve la funcion
+            tiempo = np.arange(self.frame, self.frame + CHUNK)
+            self.frame += CHUNK
+        return self.fun(tiempo) # devuelve vacío
     
     
     def fun(self, tiempo):
@@ -100,6 +101,7 @@ class Neg(Function):
         return -_g
     
 # TODO añadir el otro valor del log
+#f(x)=log(10,x .9+.1)+1 <-
 class Log(Function):
     def __init__(self, g):
         super().__init__()
@@ -158,7 +160,7 @@ class XP(Function):
             z = 0.000001
         return tiempo * self.valor.next(tiempo) ** self.pow.next(tiempo) + z
 
-#f(x)=log(10,x .9+.1)+1 <-
+
 
 
 
