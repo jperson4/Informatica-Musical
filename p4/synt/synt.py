@@ -7,7 +7,7 @@ from synt.osc import *
 
 class Synt(Osc):
     '''Los synt son un oscilador que emplea otro oscilador para formar la onda puede estar sujeto a una envolvente'''
-    def __init__(self, freq, onda:Osc, amp=Const(1), phase=Const(0), env=NoEnv):
+    def __init__(self, freq:Function, onda:Osc, amp=Const(1), phase=Const(0), env=NoEnv):
         super().__init__(freq, None, None, amp, phase)
         self.onda = onda
 
