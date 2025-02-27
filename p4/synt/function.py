@@ -160,8 +160,3 @@ class XP(Function):
         if self.avoid0:
             z = 0.000001
         return (tiempo * self.valor.next(tiempo)) ** self.pow.next(tiempo) + z
-
-
-
-
-

@@ -75,4 +75,3 @@ class Echo:
         self.frame = (self.frame + chunk) % self.time
         return signal
     
-
