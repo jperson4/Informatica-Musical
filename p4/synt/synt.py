@@ -2,6 +2,7 @@ import numpy as np
 from synt.const import *
 from synt.function import *
 from synt.envolv import *
+from mixer import *
 
 from synt.osc import *
 
@@ -74,6 +75,8 @@ class PolySynt(Osc):
         onda = np.zeros(CHUNK)        
         for s in self.synts:
             onda = onda + s.next(tiempo)
+            
+        # TODO: usar mixer
         return onda * self.amp.next(tiempo)
 
     def setAmps(self, amps):
