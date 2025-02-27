@@ -96,7 +96,7 @@ class Neg(Function):
         super().__init__()
         self.g = g
         
-    def _fun(self, tiempo):
+    def fun(self, tiempo):
         _g = self.g.next(tiempo)
         return -_g
     
@@ -107,7 +107,7 @@ class Log(Function):
         super().__init__()
         self.g = g
         
-    def _fun(self, tiempo):
+    def fun(self, tiempo):
         _g = self.g.next(tiempo)
         return np.log(_g)
 
@@ -117,7 +117,7 @@ class Exp(Function):
         self.g = g
         self.e = e
         
-    def _fun(self, tiempo):
+    def fun(self, tiempo):
         _g = self.g.next(tiempo)
         _e = self.e.next(tiempo)
         return _g ** _e
@@ -127,7 +127,7 @@ class Const(Function): # f(t) = valor
         super().__init__()
         self.valor = valor
         
-    def next(self, tiempo):
+    def fun(self, tiempo):
         return self.valor # más rápido
         # return np.full(CHUNK, self.valor)
 
@@ -141,24 +141,24 @@ class X(Function): # f(t) = valor*t
         self.valor = valor / C(SRATE)
         self.avoid0 = avoid0
     
-    def next(self, tiempo):
+    def fun(self, tiempo):
         z = 0
         if self.avoid0:
             z = 0.000001
         return tiempo * self.valor.next(tiempo) + z
     
 class XP(Function):
-    def __init__(self, valor, pow, avoid0 = False):
+    def __init__(self, valor=C(1), pow=C(1), avoid0 = False):
         super().__init__()
         self.valor = valor / C(SRATE)
         self.pow = pow
         self.avoid0 = avoid0
     
-    def next(self, tiempo):
+    def fun(self, tiempo):
         z = 0
         if self.avoid0:
             z = 0.000001
-        return tiempo * self.valor.next(tiempo) ** self.pow.next(tiempo) + z
+        return (tiempo * self.valor.next(tiempo)) ** self.pow.next(tiempo) + z
 
 
 
