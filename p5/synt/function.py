@@ -14,11 +14,11 @@ from tkinter import *
 '''
 
 class Function:
-    def __init__(self, tk:Tk, nombre="", show=False):
+    def __init__(self, tk:Tk, nombre=""):
         self.frame = 0 
         self.tk = tk
         self.nombre = nombre
-        self.show = show
+        self.show = False # empieza a false para que solo se pueda cambiar una vez
     
     def __mul__(self, other):
         return Mult(self, other)
@@ -50,7 +50,7 @@ class Function:
         return np.zeros(CHUNK)
     
     def doShow(self):
-        if self.show is False: # si es None o True no entra
+        if self.show is False and self.tk is not None: # si es None o True no entra
             self.show = True
             self.tk = LabelFrame(self.tk, text=self.nombre)
             self.tk.pack(side=LEFT)
@@ -61,9 +61,10 @@ class Function:
         self.nombre = n + self.nombre
     
     
+# TODO: hacer el show de las operaciones
 class Add(Function): # f(x) = g(x) + h(x)
     def __init__(self, g, h):
-        super().__init__(show=False)
+        super().__init__()
         self.g = g
         self.h = h
         
@@ -74,7 +75,7 @@ class Add(Function): # f(x) = g(x) + h(x)
     
 class Sub(Function): # f(x) = g(x) - h(x)
     def __init__(self, g, h):
-        super().__init__(show=False)
+        super().__init__()
         self.g = g
         self.h = h
         
@@ -85,7 +86,7 @@ class Sub(Function): # f(x) = g(x) - h(x)
     
 class Mult(Function): # f(x) = g(x) * h(x)
     def __init__(self, g, h):
-        super().__init__(show=False)
+        super().__init__()
         self.g = g
         self.h = h
         
@@ -96,7 +97,7 @@ class Mult(Function): # f(x) = g(x) * h(x)
     
 class Div(Function): # f(x) = g(x) / h(x)
     def __init__(self, g, h):
-        super().__init__(show=False)
+        super().__init__()
         self.g = g
         self.h = h
         
@@ -107,7 +108,7 @@ class Div(Function): # f(x) = g(x) / h(x)
 
 class Neg(Function):
     def __init__(self, g):
-        super().__init__(show=False)
+        super().__init__()
         self.g = g
         
     def fun(self, tiempo):
@@ -118,7 +119,7 @@ class Neg(Function):
 #f(x)=log(10,x .9+.1)+1 <-
 class Log(Function):
     def __init__(self, g):
-        super().__init__(show=False)
+        super().__init__()
         self.g = g
         
     def fun(self, tiempo):
@@ -127,7 +128,7 @@ class Log(Function):
 
 class Exp(Function):
     def __init__(self, g, e):
-        super().__init__(show=False)
+        super().__init__()
         self.g = g
         self.e = e
         
@@ -138,7 +139,7 @@ class Exp(Function):
     
 class Const(Function): # f(t) = valor
     def __init__(self, valor, tk:Tk=None, nombre="C", show=False, fr=None, to=None, step=None):
-        super().__init__(tk, nombre, show=False)
+        super().__init__(tk, nombre)
         self.valor = valor
         
         self.fr = fr
@@ -164,14 +165,14 @@ class Const(Function): # f(t) = valor
         
     def doShow(self):
         super().doShow()
-        if not self.show:
+        if self.show is False and self.tk is not None: # si es None o True no entra
             slider=Scale(self.tk, from_=self.fr, to=self.to, resolution=self.step, orient=HORIZONTAL, label=self.nombre, command=self.setVal)
             slider.set(self.valor)
             slider.pack
 
 class C(Const): # misma que const pero mas corta
-    def __init__(self, valor):
-        super().__init__(valor)
+    def __init__(self, valor, tk:Tk=None, nombre="C", show=False, fr=None, to=None, step=None):
+        super().__init__(valor, tk, nombre, show, fr, to, step)
         
 class X(Function): # f(t) = valor*t
     def __init__(self, valor=C(1), tk:Tk=None, avoid0 = False, nombre="X", show=False):
@@ -195,7 +196,7 @@ class X(Function): # f(t) = valor*t
     
 class XP(Function):
     def __init__(self, valor=C(1), exp=C(1), tk:Tk=None, avoid0 = False, nombre="X^exp", show=False):
-        super().__init__(tk, nombre, show)
+        super().__init__(tk, nombre)
         self.exp = exp
         self.avoid0 = avoid0
         self.val = X(valor, tk, False, "X", False)
