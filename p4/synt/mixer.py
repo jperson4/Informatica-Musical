@@ -1,5 +1,6 @@
 import numpy as np
-from const import *
+from synt.const import *
+from synt.function import *
 from math import sqrt
 
 def mix(ondas:list[list]):
@@ -13,9 +14,12 @@ def mix(ondas:list[list]):
         ret = ret + (o * fact)
     return ret
 
-class Mixer(function):
-    def __init__(self, oscs:list[function]):
+class Mixer(Function):
+    def __init__(self, oscs:list[Function]):
         super().__init__()
+        self.oscs = oscs
+        
+    def setOscs(self, oscs):
         self.oscs = oscs
         
     def fun(self, tiempo):

@@ -2,7 +2,7 @@ import numpy as np
 from tkinter import *
 
 from copy import copy
-
+import math
 
 from synt.const import *
 from synt.synt import *
@@ -11,11 +11,12 @@ from synt.function import *
 from synt.envolv import *
 from synt.effects import *
 from synt.instrumento import *
+from synt.mixer import *
 
 class Instrumento:
-    def __init__(self, tk:Tk, synt, env):
+    def __init__(self, tk:Tk, synt, env, nombre='Instrumento'):
         # Creación de los osciladores
-
+        # self.mixer = Mixer()
         self.synt = synt
         self.env = env
         # canales indexados por la nota de lanzamiento -> solo una nota del mismo valor
@@ -26,7 +27,7 @@ class Instrumento:
         self.octava = 4
         
         # interfaz
-        frame = LabelFrame(tk, text="Sintetizador FM armónico", bg="#808090")
+        frame = LabelFrame(tk, text=nombre, bg="#808090")
         frame.pack(side=LEFT)
         
         slider_octava =Scale(frame, from_=-1, to=10, resolution=1, orient=HORIZONTAL, label="Octava", command=self.change_octava, length=400)
@@ -61,6 +62,7 @@ class Instrumento:
         #     self.afinacion = notasAT
         
         freq= freqsMidi[midiNote] * 2 ** self.octava
+        print(freq)
         synt = copy(self.synt)
         env = copy(self.env)
         synt.setFreq(C(freq))
@@ -74,7 +76,7 @@ class Instrumento:
             self.channels[midiNote].getEnv().noteOff()
             
     def change_octava(self, val):
-        self.octava = int(val) - 1
+        self.octava = int(val) - 2
 
 
     # identificar y mandar reproducir la nota
@@ -91,6 +93,7 @@ class Instrumento:
             midiNote = teclas.index(c) + 48# buscamos indice y hacemos el noteOff
             print(f'noteOff {midiNote}')
             self.noteOff(midiNote)
+            
     # siguiente chunck del generador: sumamos señal de canales y hacemos limpia de silenciados
     def next(self):
         out = np.zeros(CHUNK)          
@@ -108,5 +111,7 @@ class Instrumento:
             # out = out / np.max(out)
         if len(self.channels) > 0:
             # print(len(self.channels))
-            out = out /len(self.channels)
+            fact = 1/math.sqrt(len(self.channels))
+            out = out * fact
+            # out = out /len(self.channels)
         return out

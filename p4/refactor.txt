@@ -9,3 +9,4 @@ TODO:
 Hacer un instrumento simpe que funcione más fácilmente y sirva de base para el resto
 Hacer una buena clase/funcion mixer
 Modificar el oscilador del instrumento para que use las escalas esas
+Meter un tk a cada valor para poder modificarlos como yo quiera (molaria)

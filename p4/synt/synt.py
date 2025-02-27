@@ -2,9 +2,11 @@ import numpy as np
 from synt.const import *
 from synt.function import *
 from synt.envolv import *
-from mixer import *
+from synt.mixer import *
 
 from synt.osc import *
+
+import math
 
 class Synt(Osc):
     '''Los synt son un oscilador que emplea otro oscilador para formar la onda puede estar sujeto a una envolvente'''
@@ -41,6 +43,9 @@ class Synt(Osc):
 # TODO añadir un mixer
 class PolySynt(Osc):
     def __init__(self, freqs:list[Function], ondas:list[Osc], amp=C(1), amps=[Const(1)], phases=[Const(0)], envs=[NoEnv()]):
+        
+        # esto lo pongo por poner pero en verdad no estan implementadas las funciones de la clase osc
+        super().__init__(freqs[0], None, None, amp, phases[0])
         # ajsutar que todo tenga el mismo numero de elementos
         n = len(freqs)
         while len(ondas) < n:
@@ -57,7 +62,8 @@ class PolySynt(Osc):
         self.synts = []
         # usamos una lista de sintetizadores
         for i in range(0, n):
-            self.synts[i] = Synt(freqs[i], ondas[i], amps[i], phases[i], envs[i])
+            self.synts.append(Synt(freqs[i], ondas[i], amps[i], phases[i], envs[i]))
+            # = Synt(freqs[i], ondas[i], amps[i], phases[i], envs[i])
         
         # guardamos para poder devolverlas si se piden
         self.freqs = freqs
@@ -67,16 +73,16 @@ class PolySynt(Osc):
         self.frame = 0
         self.envs = envs
         self.amp = amp
+        self.mixer = Mixer(self.synts)
         
-        # esto lo pongo por poner pero en verdad no estan implementadas las funciones de la clase osc
-        super().__init__(freqs[0], None, None, amps[0], phases[0])
+
 
     def fun(self, tiempo):
-        onda = np.zeros(CHUNK)        
+        onda = np.zeros(CHUNK)     
+        fact = 1 / math.sqrt(len (self.synts))
         for s in self.synts:
-            onda = onda + s.next(tiempo)
-            
-        # TODO: usar mixer
+            onda = onda + (s.next(tiempo) * fact)
+        # onda = self.mixer.next(tiempo)
         return onda * self.amp.next(tiempo)
 
     def setAmps(self, amps):
@@ -117,12 +123,23 @@ class PolySynt(Osc):
         
 #TODO: hacerlo nuevo
 class HarmSynt(PolySynt):
-    def __init__(self, nota, ondas, amp=C(1), amps=[Const(1)], phases=[Const(0)], env=NoEnv(), afinacion=notasAJ):
-        
-        _freqs = diatonicAcorde(nota, afinacion)
+    def __init__(self, freq:Function, muls:Function, ondas, amp=C(1), amps=[Const(1)], phases=[Const(0)], env=NoEnv(), afinacion=notasAJ):
+                
+        self.muls = muls
         freqs = []
-        for f in _freqs:
-            freqs.append(C(f))
-        print(_freqs)
-          
+        for m in muls:
+            freqs.append(m * freq)
+        print(amp.next(np.zeros(CHUNK)))
         super().__init__(freqs, ondas, amp, amps, phases, [env])
+        
+    def setFreq(self, val):
+        for m in range(0, len(self.muls)):
+            self.freqs[m] = val * self.muls[m]
+            self.synts[m].setFreq(self.freqs[m])
+            
+    def setEnv(self, env):
+        for s in self.synts:
+            s.setEnv(env)
+        
+    def getEnv(self):
+        return self.synts[0].getEnv()
