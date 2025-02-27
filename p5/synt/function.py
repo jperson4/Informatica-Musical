@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import scipy.signal as sg
 from synt.const import *
 
+from tkinter import *
+
 '''
     Funciones: Al usar .next(tiempo), devuelven un np.array con los 
     valores que representan la función en el tiempo especificado.
@@ -12,9 +14,11 @@ from synt.const import *
 '''
 
 class Function:
-    def __init__(self):
+    def __init__(self, tk:Tk, nombre="", show=False):
         self.frame = 0 
-        pass
+        self.tk = tk
+        self.nombre = nombre
+        self.show = show
     
     def __mul__(self, other):
         return Mult(self, other)
@@ -41,16 +45,25 @@ class Function:
             self.frame += CHUNK
         return self.fun(_tiempo) # devuelve vacío
     
-    
     def fun(self, tiempo):
         '''esto es lo que se modiica en cada implementacion de Function'''
         return np.zeros(CHUNK)
     
+    def doShow(self):
+        if self.show is False: # si es None o True no entra
+            self.show = True
+            self.tk = LabelFrame(self.tk, text=self.nombre)
+            self.tk.pack(side=LEFT)
+            
+    def addNombre(self, n): # no se si se va a usar pero weno
+        if n != "" and self.nombre != "":
+            n = n + ":"
+        self.nombre = n + self.nombre
     
     
 class Add(Function): # f(x) = g(x) + h(x)
     def __init__(self, g, h):
-        super().__init__()
+        super().__init__(show=False)
         self.g = g
         self.h = h
         
@@ -61,7 +74,7 @@ class Add(Function): # f(x) = g(x) + h(x)
     
 class Sub(Function): # f(x) = g(x) - h(x)
     def __init__(self, g, h):
-        super().__init__()
+        super().__init__(show=False)
         self.g = g
         self.h = h
         
@@ -72,7 +85,7 @@ class Sub(Function): # f(x) = g(x) - h(x)
     
 class Mult(Function): # f(x) = g(x) * h(x)
     def __init__(self, g, h):
-        super().__init__()
+        super().__init__(show=False)
         self.g = g
         self.h = h
         
@@ -83,7 +96,7 @@ class Mult(Function): # f(x) = g(x) * h(x)
     
 class Div(Function): # f(x) = g(x) / h(x)
     def __init__(self, g, h):
-        super().__init__()
+        super().__init__(show=False)
         self.g = g
         self.h = h
         
@@ -94,7 +107,7 @@ class Div(Function): # f(x) = g(x) / h(x)
 
 class Neg(Function):
     def __init__(self, g):
-        super().__init__()
+        super().__init__(show=False)
         self.g = g
         
     def fun(self, tiempo):
@@ -105,7 +118,7 @@ class Neg(Function):
 #f(x)=log(10,x .9+.1)+1 <-
 class Log(Function):
     def __init__(self, g):
-        super().__init__()
+        super().__init__(show=False)
         self.g = g
         
     def fun(self, tiempo):
@@ -114,7 +127,7 @@ class Log(Function):
 
 class Exp(Function):
     def __init__(self, g, e):
-        super().__init__()
+        super().__init__(show=False)
         self.g = g
         self.e = e
         
@@ -124,43 +137,84 @@ class Exp(Function):
         return _g ** _e
     
 class Const(Function): # f(t) = valor
-    def __init__(self, valor):
-        super().__init__()
+    def __init__(self, valor, tk:Tk=None, nombre="C", show=False, fr=None, to=None, step=None):
+        super().__init__(tk, nombre, show=False)
         self.valor = valor
+        
+        self.fr = fr
+        self.to = to
+        self.step = step
+        
+        if step is None:
+            self.step = valor / 100
+        if fr is None:
+            self.fr = valor - 10 * self.step
+        if to is None:
+            self.to = valor + 10 * self.step
+
+        if show:
+            self.doShow()
         
     def fun(self, tiempo):
         return self.valor # más rápido
         # return np.full(CHUNK, self.valor)
+        
+    def setVal(self, val):
+        self.valor = val
+        
+    def doShow(self):
+        super().doShow()
+        if not self.show:
+            slider=Scale(self.tk, from_=self.fr, to=self.to, resolution=self.step, orient=HORIZONTAL, label=self.nombre, command=self.setVal)
+            slider.set(self.valor)
+            slider.pack
 
 class C(Const): # misma que const pero mas corta
     def __init__(self, valor):
         super().__init__(valor)
         
 class X(Function): # f(t) = valor*t
-    def __init__(self, valor=C(1), avoid0 = False):
-        super().__init__()
-        self.valor = valor / C(SRATE)
+    def __init__(self, valor=C(1), tk:Tk=None, avoid0 = False, nombre="X", show=False):
+        super().__init__(tk, nombre, show)
+        self.valor = valor
         self.avoid0 = avoid0
+        if self.show:
+            self.doShow()
     
     def fun(self, tiempo):
         z = 0
+        _valor = self.valor / C(SRATE)
         if self.avoid0:
             z = 0.000001
-        return tiempo * self.valor.next(tiempo) + z
+        return tiempo * _valor.next(tiempo) + z
+    
+    def doShow(self):
+        super().doShow()
+        self.valor.addNombre(self.nombre)
+        self.valor.doShow()
     
 class XP(Function):
-    def __init__(self, valor=C(1), pow=C(1), avoid0 = False):
-        super().__init__()
-        self.valor = valor / C(SRATE)
-        self.pow = pow
+    def __init__(self, valor=C(1), exp=C(1), tk:Tk=None, avoid0 = False, nombre="X^exp", show=False):
+        super().__init__(tk, nombre, show)
+        self.exp = exp
         self.avoid0 = avoid0
+        self.val = X(valor, tk, False, "X", False)
+        if self.show:
+            self.doShow()
     
     def fun(self, tiempo):
         z = 0
         if self.avoid0:
             z = 0.000001
-        return (tiempo * self.valor.next(tiempo)) ** self.pow.next(tiempo) + z
+        return (tiempo * self.val.next(tiempo)) ** self.exp.next(tiempo) + z
 
+    def doShow(self):
+        super().doShow() # crea el tk.frame
+        self.val.addNombre(self.nombre) 
+        self.val.doShow() # añade el valor al frame
+        self.exp.addNombre("exp") # creo
+        self.exp.addNombre(self.nombre)
+        self.exp.doShow() # añade el exponente al frame
 
 
 
