@@ -17,7 +17,6 @@ class Synt(Osc):
         self.env = env
     
     def fun(self, tiempo):
-        self.frame += CHUNK
         return self.onda.next(tiempo) * self.env.next(tiempo)
 
     def setFreq(self, value):
@@ -31,6 +30,12 @@ class Synt(Osc):
     def setPhase(self, value):
         self.phase = value
         self.onda.setPhase(value)
+        
+    def getEnv(self):
+        return self.env
+    
+    def setEnv(self, env):
+        self.env = env
 
 # TODO añadir un mixer
 class PolySynt(Osc):
@@ -107,6 +112,7 @@ class PolySynt(Osc):
     def getPhase(self, i):
         return self.synts[i].phase
         
+#TODO: hacerlo nuevo
 class HarmSynt(PolySynt):
     def __init__(self, nota, ondas, amp=C(1), amps=[Const(1)], phases=[Const(0)], env=NoEnv(), afinacion=notasAJ):
         

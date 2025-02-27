@@ -149,6 +149,7 @@ class Rep(Osc): # repite una funcion en base a la frecuencia
         
     def fun(self, tiempo):
         _phase = self.phase.next(tiempo)
+        _tiempo = tiempo
         # _tiempo = tiempo + _phase # TODO: ver como sacar la fase
         _tiempo = _tiempo % (SRATE/self.freq.next()) # frecuencia en Hz
         _amp = None
@@ -164,3 +165,27 @@ class Rep(Osc): # repite una funcion en base a la frecuencia
         onda = self.func.next(_tiempo)
         
         return onda * _amp + _offset
+    
+class Sampler(Function):
+    def __init__(self, sample, speed_factor):
+        super().__init__()    
+        self.sample = sample
+        self.sf = speed_factor
+        
+    def fun(self, time):
+        # TODO hacer el speed_factor
+        _sample = self.sample
+        frame = time[0]
+        if frame > len(_sample):
+            return np.zeros(CHUNK) # devuelve 0 si se ha pasado del sample
+        if frame + CHUNK > len(_sample):
+            ret = np.concatenate((_sample[frame:], np.zeros(frame + CHUNK - len(_sample))))
+            return ret[:CHUNK] # creo
+        else:
+            return _sample[frame:frame+CHUNK]
+
+class RSampler(Osc):
+    def __init__(self, freq, sample:list, sfreq, max=C(1), min=C(-1), amp=None, phase=C(0)):
+        super().__init__(freq, max, min, amp, phase)
+        self.sample = sample
+        # TODO 

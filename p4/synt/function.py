@@ -35,10 +35,11 @@ class Function:
         return Exp(self)
 
     def next(self, tiempo = None):
+        _tiempo = tiempo
         if tiempo is None: 
-            tiempo = np.arange(self.frame, self.frame + CHUNK)
+            _tiempo = np.arange(self.frame, self.frame + CHUNK)
             self.frame += CHUNK
-        return self.fun(tiempo) # devuelve vacío
+        return self.fun(_tiempo) # devuelve vacío
     
     
     def fun(self, tiempo):
