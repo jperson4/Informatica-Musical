@@ -1,7 +1,11 @@
-SYNT -> OSC y quitarle la envolvente
-OSC + ENV -> Nota (tmb podria ser un tipo de osc)
+DONE:
+SYNT -> OSC y quitarle la envolvente <-- he dejado la envolvente en synt
+OSC + ENV -> Nota (tmb podria ser un tipo de osc)  <-- basicamente ahora nota == synt
 
-TODO:
 Ver que hacemos con las funciones y los Osc:
-    1- Hacer que los osc puedan actuar como funciones sobre el tiempo (sin otros parametros)
+    1- Hacer que los osc puedan actuar como funciones sobre el tiempo (sin otros parametros) <-- esto
+
+TODO:    
 Hacer un instrumento simpe que funcione más fácilmente y sirva de base para el resto
+Hacer una buena clase/funcion mixer
+Modificar el oscilador del instrumento para que use las escalas esas
