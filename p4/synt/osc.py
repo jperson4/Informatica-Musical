@@ -60,7 +60,7 @@ class Osc(Function):
         self.phase = value
     
 class Sine(Osc): # f(t) = amp * sin(t * 2pi * freq + phase)
-    def __init__(self, freq:Function, max=C(1), min=C(0), amp=None, phase=C(0)):
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0)):
         super().__init__(freq, max, min, amp, phase)
         
     def fun(self, tiempo):
@@ -81,7 +81,7 @@ class Sine(Osc): # f(t) = amp * sin(t * 2pi * freq + phase)
         return onda * _amp + _offset
     
 class Triangle(Osc): # f(t) = amp * arcsin(sin(t * 2pi * freq + phase)) * 2/pi   -> 2/pi es para que vaya de 1 a -1
-    def __init__(self, freq:Function, max=C(1), min=C(0), amp=None, phase=C(0)):
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0)):
         super().__init__(freq, max, min, amp, phase)
 
     def fun(self, tiempo):
@@ -102,7 +102,7 @@ class Triangle(Osc): # f(t) = amp * arcsin(sin(t * 2pi * freq + phase)) * 2/pi  
         return onda * _amp + _offset
     
 class Sawtooth(Osc): # f(t) = amp * arctan(tan(t * 2pi * freq + phase)) * 2/pi   -> 2/pi es para que vaya de 1 a -1
-    def __init__(self, freq:Function, max=C(1), min=C(0), amp=None, phase=C(0)):
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0)):
         super().__init__(freq, max, min, amp, phase)
 
     def fun(self, tiempo):
@@ -122,7 +122,7 @@ class Sawtooth(Osc): # f(t) = amp * arctan(tan(t * 2pi * freq + phase)) * 2/pi  
         return onda * _amp + _offset
 
 class Square(Osc):
-    def __init__(self, freq:Function, max=C(1), min=C(0), amp=None, phase=C(0), duty=C(.5)):
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), duty=C(.5)):
         super().__init__(freq, max, min, amp, phase)
         self.duty = duty # no implementado
 
@@ -148,9 +148,9 @@ class Rep(Osc): # repite una funcion en base a la frecuencia
         self.func = func
         
     def fun(self, tiempo):
-        _tiempo = tiempo % self.freq.next() 
-        _phase = self.phase.next(_tiempo)
-        _tiempo = tiempo + _phase * SRATE # en este caso la fase son segundos
+        _phase = self.phase.next(tiempo)
+        # _tiempo = tiempo + _phase # TODO: ver como sacar la fase
+        _tiempo = _tiempo % (SRATE/self.freq.next()) # frecuencia en Hz
         _amp = None
         _offset = 0
 
