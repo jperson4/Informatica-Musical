@@ -19,8 +19,21 @@ class Synt(Osc):
         self.onda.setPhase(phase)
         self.env = env
     
-    def mix(self, tiempo):
+    def fun(self, tiempo):
         return self.onda.next(tiempo) * self.env.next(tiempo)
+    
+    def doShow(self, tk):
+        _tk = super().doShow(tk)
+        self.amp.addNombre("amp")
+        self.amp.doShow(_tk)
+        self.freq.addNombre("freq")
+        self.freq.doShow(_tk)
+        self.phase.addNombre("phase")
+        self.phase.doShow(_tk)
+        self.onda.addNombre("onda")
+        self.onda.doShow(_tk)
+        self.env.addNombre("env")
+        self.env.doShow(_tk)
 
     def setFreq(self, value):
         self.freq = value
@@ -41,13 +54,14 @@ class Synt(Osc):
         self.env = env
 
 # TODO añadir un mixer
-class PolySynt(Osc):
-    def __init__(self, freqs:list[Function], ondas:list[Osc], amp=C(1), amps=[Const(1)], phases=[Const(0)], envs=[NoEnv()]):
-        
-        # esto lo pongo por poner pero en verdad no estan implementadas las funciones de la clase osc
-        super().__init__(freqs[0], None, None, amp, phases[0])
+class PolySynt(Function):
+    def __init__(self, freqs:list[Function], ondas:list[Osc], amp=C(1), amps=[Const(1)], 
+                 phases=[Const(0)], envs=[NoEnv()], fmix=tanh, nombre="polysint", show=False):
+        super().__init__(show, nombre)
         # ajsutar que todo tenga el mismo numero de elementos
         n = len(freqs)
+        self.n = n
+
         while len(ondas) < n:
             ondas.append(ondas[0])
         while len(amps) < n:
@@ -57,8 +71,6 @@ class PolySynt(Osc):
         while len(envs) < n:
             envs.append(envs[0])
         
-        self.n = n
-        
         self.synts = []
         # usamos una lista de sintetizadores
         for i in range(0, n):
@@ -66,6 +78,7 @@ class PolySynt(Osc):
             # = Synt(freqs[i], ondas[i], amps[i], phases[i], envs[i])
         
         # guardamos para poder devolverlas si se piden
+        self.amp = amp
         self.freqs = freqs
         self.amps = amps
         self.phases = phases  
@@ -73,17 +86,25 @@ class PolySynt(Osc):
         self.frame = 0
         self.envs = envs
         self.amp = amp
-        self.mixer = Mixer(self.synts)
-        
+        self.nombre = nombre
+        self.show = show
+        self.mixer = Mixer(self.synts, fmix)
 
-
-    def mix(self, tiempo):
-        onda = np.zeros(CHUNK)     
-        fact = 1 / math.sqrt(len (self.synts))
-        for s in self.synts:
-            onda = onda + (s.next(tiempo) * fact)
-        # onda = self.mixer.next(tiempo)
+    def fun(self, tiempo):
+        # onda = np.zeros(CHUNK)     
+        # fact = 1 / math.sqrt(len (self.synts))
+        # for s in self.synts:
+        #     onda = onda + (s.next(tiempo) * fact)
+        onda = self.mixer.next(tiempo)
         return onda * self.amp.next(tiempo)
+    
+    def doShow(self, tk):
+        _tk = super().doShow(tk)
+        # for i in range(0, self.n):
+        #     self.synts[i].doShow(_tk)
+        self.amp.addNombre("amp")
+        self.amp.doShow(_tk)
+        self.mixer.doShow(_tk)
 
     def setAmps(self, amps):
         for i in range(0, self.n):
@@ -123,19 +144,35 @@ class PolySynt(Osc):
         
 #TODO: hacerlo nuevo
 class HarmSynt(PolySynt):
-    def __init__(self, freq:Function, muls:Function, ondas, amp=C(1), amps=[Const(1)], phases=[Const(0)], env=NoEnv(), afinacion=notasAJ):
+    def __init__(self, freq:Function, muls:Function, ondas, amp=C(1), 
+                 amps=[Const(1)], phases=[Const(0)], env=NoEnv(), afinacion=notasAJ,
+                 fmix=tanh ,nombre="harmsynt", show=False):
                 
         self.muls = muls
         freqs = []
         for m in muls:
             freqs.append(m * freq)
         print(amp.next(np.zeros(CHUNK)))
-        super().__init__(freqs, ondas, amp, amps, phases, [env])
+        super().__init__(freqs, ondas, amp, amps, phases, [env], fmix, nombre, show)
         
     def setFreq(self, val):
         for m in range(0, len(self.muls)):
             self.freqs[m] = val * self.muls[m]
             self.synts[m].setFreq(self.freqs[m])
+            
+    def doShow(self, tk):
+        _tk = super().doShow(tk)
+        for i in range(0, self.n):
+            self.muls[i].addNombre("mul")
+            self.muls[i].addNombre(i)
+            self.muls[i].doShow(_tk)
+            
+            self.synts[i].addNombre("synts")
+            self.synts[i].addNombre(i)
+            self.synts[i].doShow(_tk)
+        
+        self.amp.addNombre("amp")
+        self.amp.doShow(_tk)
             
     def setEnv(self, env):
         for s in self.synts:

@@ -27,7 +27,7 @@ class Osc(Function):
             self.amp = amp
     
     # esto va a ser lo que se modifique
-    def mix(self, tiempo):
+    def fun(self, tiempo):
         return np.zeros(len(tiempo))        
     
     def doShow(self, tk:Tk):
@@ -85,7 +85,7 @@ class Sine(Osc): # f(t) = amp * sin(t * 2pi * freq + phase)
     def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), nombre="Sine", show=False):
         super().__init__(freq, max, min, amp, phase, nombre, show)
         
-    def mix(self, tiempo):
+    def fun(self, tiempo):
         _freq = self.freq.next(tiempo)
         _phase = self.phase.next(tiempo)
         _amp = None
@@ -110,7 +110,7 @@ class Triangle(Osc): # f(t) = amp * arcsin(sin(t * 2pi * freq + phase)) * 2/pi  
     def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), nombre="Triangle", show=False):
         super().__init__(freq, max, min, amp, phase, nombre, show)
 
-    def mix(self, tiempo):
+    def fun(self, tiempo):
         _freq = self.freq.next(tiempo)
         _phase = self.phase.next(tiempo)
         _amp = None
@@ -131,7 +131,7 @@ class Sawtooth(Osc): # f(t) = amp * arctan(tan(t * 2pi * freq + phase)) * 2/pi  
     def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), nombre="Sawtooth", show=False):
         super().__init__(freq, max, min, amp, phase, nombre, show)
 
-    def mix(self, tiempo):
+    def fun(self, tiempo):
         _freq = self.freq.next(tiempo)
         _phase = self.phase.next(tiempo)
         _amp = None
@@ -152,7 +152,7 @@ class Square(Osc):
         super().__init__(freq, max, min, amp, phase, nombre, show)
         self.duty = duty # no implementado
 
-    def mix(self, tiempo):
+    def fun(self, tiempo):
         _freq = self.freq.next(tiempo)
         _phase = self.phase.next(tiempo)
         _amp = None
@@ -173,7 +173,7 @@ class Rep(Osc): # repite una funcion en base a la frecuencia
         super().__init__(freq, max, min, amp, phase, nombre, show)
         self.func = func
         
-    def mix(self, tiempo):
+    def fun(self, tiempo):
         _phase = self.phase.next(tiempo)
         _tiempo = tiempo
         # _tiempo = tiempo + _phase # TODO: ver como sacar la fase
@@ -203,7 +203,7 @@ class Sampler(Function):
         self.sample = sample
         self.sf = speed_factor
         
-    def mix(self, time):
+    def fun(self, time):
         # TODO hacer el speed_factor
         _sample = self.sample
         frame = time[0]
