@@ -42,9 +42,9 @@ class Function:
         if tiempo is None: 
             _tiempo = np.arange(self.frame, self.frame + CHUNK)
             self.frame += CHUNK
-        return self.fun(_tiempo) # devuelve vacío
+        return self.mix(_tiempo) # devuelve vacío
     
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         '''esto es lo que se modiica en cada implementacion de Function'''
         return np.zeros(CHUNK)
     
@@ -71,7 +71,7 @@ class Add(Function): # f(x) = g(x) + h(x)
         self.g = g
         self.h = h
         
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         _g = self.g.next(tiempo)
         _h = self.h.next(tiempo)
         return _g + _h
@@ -82,7 +82,7 @@ class Sub(Function): # f(x) = g(x) - h(x)
         self.g = g
         self.h = h
         
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         _g = self.g.next(tiempo)
         _h = self.h.next(tiempo)
         return _g - _h  
@@ -93,7 +93,7 @@ class Mult(Function): # f(x) = g(x) * h(x)
         self.g = g
         self.h = h
         
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         _g = self.g.next(tiempo)
         _h = self.h.next(tiempo)
         return _g * _h
@@ -104,7 +104,7 @@ class Div(Function): # f(x) = g(x) / h(x)
         self.g = g
         self.h = h
         
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         _g = self.g.next(tiempo)
         _h = self.h.next(tiempo)
         return _g / _h  
@@ -114,7 +114,7 @@ class Neg(Function):
         super().__init__()
         self.g = g
         
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         _g = self.g.next(tiempo)
         return -_g
     
@@ -125,7 +125,7 @@ class Log(Function):
         super().__init__()
         self.g = g
         
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         _g = self.g.next(tiempo)
         return np.log(_g)
 
@@ -135,7 +135,7 @@ class Exp(Function):
         self.g = g
         self.e = e
         
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         _g = self.g.next(tiempo)
         _e = self.e.next(tiempo)
         return _g ** _e
@@ -148,18 +148,23 @@ class Const(Function): # f(t) = valor
         self.to = to
         self.step = step
         
+        _valor = valor
+        if valor == 0: # cuando es 0 se lia
+            _valor = 1
+        
         if step is None:
-            self.step = valor / 1000
+            self.step = _valor / 1000
         if fr is None:
             # self.fr = valor - 1000 * self.step
             self.fr = 0
         if to is None:
-            self.to = valor + 1500 * self.step
+            self.to = _valor + 1500 * self.step
+        
 
         # if show:
             # self.doShow()
         
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         return self.valor # más rápido
         # return np.full(CHUNK, self.valor)
         
@@ -197,7 +202,7 @@ class X(Function): # f(t) = valor*t
         if self.show:
             self.doShow()
     
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         z = 0
         _valor = self.valor / C(SRATE)
         if self.avoid0:
@@ -219,7 +224,7 @@ class XP(Function):
         if self.show:
             self.doShow()
     
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         z = 0
         if self.avoid0:
             z = 0.000001

@@ -10,5 +10,14 @@ Modificar el oscilador del instrumento para que use las escalas esas
 
 TODO:    
 Meter un tk a cada valor para poder modificarlos como yo quiera
-Encontrar la manera de mostrar o no los sliders para que no se llene la pantalla de cosas
 Ver como hacemos para que algunos se apilen hacia abajo y otros hacia el lado, (tmb para que no se llene la pantalla de cosas)
+
+hacer el doshow de las clases:
+    effects
+    envolv
+    function <- DONE
+    instrumento
+    mixer
+    osc <- DONE
+    otrasFunc
+    synt <- IMPORTANTE

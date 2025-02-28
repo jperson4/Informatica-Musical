@@ -19,7 +19,7 @@ class Synt(Osc):
         self.onda.setPhase(phase)
         self.env = env
     
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         return self.onda.next(tiempo) * self.env.next(tiempo)
 
     def setFreq(self, value):
@@ -77,7 +77,7 @@ class PolySynt(Osc):
         
 
 
-    def fun(self, tiempo):
+    def mix(self, tiempo):
         onda = np.zeros(CHUNK)     
         fact = 1 / math.sqrt(len (self.synts))
         for s in self.synts:
