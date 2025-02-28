@@ -11,8 +11,8 @@ from synt.function import *
 '''
 
 class Osc(Function):    
-    def __init__(self, freq:Function, max=C(1), min=C(-1), amp:Function=None, phase=C(0), tk:Tk=None, nombre="", show=False):
-        super().__init__(show, tk, nombre)
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp:Function=None, phase=C(0), nombre="", show=False):
+        super().__init__(show, nombre)
         self.freq = freq
         self.phase = phase
         self.frame = 0
@@ -30,31 +30,26 @@ class Osc(Function):
     def fun(self, tiempo):
         return np.zeros(len(tiempo))        
     
-    def doShow(self, tk:Tk=None):
+    def doShow(self, tk:Tk):
         _tk = super().doShow(tk)
-        _root = self.getRoot(_tk) # obtenemos el frame en el que vamos a añadir las cosas
-        
-        if _root is None:
-            print("No has introducido un Tk")
-            return None # para que acabe la recursion
-        print("Has introducido un Tk")
         
         self.freq.addNombre("freq")
-        self.freq.addNombre(self.nombre)
-        self.freq.doShow(_root)
+        # self.freq.addNombre(self.nombre)
+        self.freq.doShow(_tk)
         if self.amp is not None:
             self.amp.addNombre("amp")
-            self.amp.addNombre(self.nombre)
-            self.amp.doShow(_root)
+            # self.amp.addNombre(self.nombre)
+            self.amp.doShow(_tk)
         else:
             self.max.addNombre("max")
-            self.max.addNombre(self.nombre)
+            # self.max.addNombre(self.nombre)
             self.min.addNombre("min")
-            self.min.addNombre(self.nombre)
-            self.max.doShow(_root)
-            self.min.doShow(_root)
+            # self.min.addNombre(self.nombre)
+            self.max.doShow(_tk)
+            self.min.doShow(_tk)
         self.phase.addNombre("phase")
-        self.phase.doShow(_root)       
+        # self.phase.addNombre(self.nombre)
+        self.phase.doShow(_tk)       
             
     def getFreq(self):
         return self.freq
@@ -87,8 +82,8 @@ class Osc(Function):
         self.phase = value
     
 class Sine(Osc): # f(t) = amp * sin(t * 2pi * freq + phase)
-    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), tk:Tk=None, nombre="", show=False):
-        super().__init__(freq, max, min, amp, phase, tk, nombre, show)
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), nombre="Sine", show=False):
+        super().__init__(freq, max, min, amp, phase, nombre, show)
         
     def fun(self, tiempo):
         _freq = self.freq.next(tiempo)
@@ -112,8 +107,8 @@ class Sine(Osc): # f(t) = amp * sin(t * 2pi * freq + phase)
         return onda * _amp + _offset
     
 class Triangle(Osc): # f(t) = amp * arcsin(sin(t * 2pi * freq + phase)) * 2/pi   -> 2/pi es para que vaya de 1 a -1
-    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), tk:Tk=None, nombre="", show=False):
-        super().__init__(freq, max, min, amp, phase, tk, nombre, show)
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), nombre="Triangle", show=False):
+        super().__init__(freq, max, min, amp, phase, nombre, show)
 
     def fun(self, tiempo):
         _freq = self.freq.next(tiempo)
@@ -133,8 +128,8 @@ class Triangle(Osc): # f(t) = amp * arcsin(sin(t * 2pi * freq + phase)) * 2/pi  
         return onda * _amp + _offset
     
 class Sawtooth(Osc): # f(t) = amp * arctan(tan(t * 2pi * freq + phase)) * 2/pi   -> 2/pi es para que vaya de 1 a -1
-    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), tk:Tk=None, nombre="", show=False):
-        super().__init__(freq, max, min, amp, phase, tk, nombre, show)
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), nombre="Sawtooth", show=False):
+        super().__init__(freq, max, min, amp, phase, nombre, show)
 
     def fun(self, tiempo):
         _freq = self.freq.next(tiempo)
@@ -153,8 +148,8 @@ class Sawtooth(Osc): # f(t) = amp * arctan(tan(t * 2pi * freq + phase)) * 2/pi  
         return onda * _amp + _offset
 
 class Square(Osc):
-    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), duty=C(.5), tk:Tk=None, nombre="", show=False):
-        super().__init__(freq, max, min, amp, phase, tk, nombre, show)
+    def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), duty=C(.5), nombre="Square", show=False):
+        super().__init__(freq, max, min, amp, phase, nombre, show)
         self.duty = duty # no implementado
 
     def fun(self, tiempo):
@@ -174,8 +169,8 @@ class Square(Osc):
         return onda * _amp + _offset
 
 class Rep(Osc): # repite una funcion en base a la frecuencia
-    def __init__(self, freq:Function, func:Function, max=C(1), min=C(-1), amp=None, phase=C(0), tk:Tk=None, nombre="", show=False):
-        super().__init__(freq, max, min, amp, phase, tk, nombre, show)
+    def __init__(self, freq:Function, func:Function, max=C(1), min=C(-1), amp=None, phase=C(0), nombre="Rep", show=False):
+        super().__init__(freq, max, min, amp, phase, nombre, show)
         self.func = func
         
     def fun(self, tiempo):
@@ -198,9 +193,9 @@ class Rep(Osc): # repite una funcion en base a la frecuencia
         return onda * _amp + _offset
     
     def doShow(self):
-        super().doShow()
+        _tk = super().doShow()
         self.func.addNombre("func")
-        self.func.doShow()
+        self.func.doShow(_tk)
     
 class Sampler(Function):
     def __init__(self, sample:list, speed_factor:Function, tk:Tk=None, nombre="", show=False):
@@ -221,9 +216,9 @@ class Sampler(Function):
             return _sample[frame:frame+CHUNK]
         
     def doShow(self):
-        super().doShow()
+        _tk =super().doShow()
         self.sf.addNombre("sf")
-        self.sf.doShow()
+        self.sf.doShow(_tk)
 
 
 class RSampler(Osc):
