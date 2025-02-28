@@ -14,11 +14,11 @@ from tkinter import *
 '''
 
 class Function:
-    def __init__(self, tk:Tk, nombre=""):
+    def __init__(self, show, tk:Tk=None, nombre=""):
         self.frame = 0 
-        self.tk = tk
+        self.root = tk
         self.nombre = nombre
-        self.show = False # empieza a false para que solo se pueda cambiar una vez
+        self.show = show # empieza a false para que solo se pueda cambiar una vez
     
     def __mul__(self, other):
         return Mult(self, other)
@@ -49,12 +49,30 @@ class Function:
         '''esto es lo que se modiica en cada implementacion de Function'''
         return np.zeros(CHUNK)
     
-    def doShow(self):
-        if self.show is False and self.tk is not None: # si es None o True no entra
-            self.show = True
-            self.tk = LabelFrame(self.tk, text=self.nombre)
-            self.tk.pack(side=LEFT)
-            
+    def getRoot(self, tk:Tk=None):
+        '''elige entre el frame tk y el root introducido explicitamente'''
+        _root = self.root # prima self.root a tk
+        if self.root is None:
+            _root = tk
+        return _root
+    
+    def doShow(self, tk:Tk=None):
+        '''crea un frame con su nombre para meter dentro sus elementos de forma recursiva'''
+        if self.show is False:
+            return None # para que acabe la recursion
+        
+        _root = self.getRoot(tk)
+        if _root is None:
+            print("No has introducido un Tk")
+            return None # para que acabe la recursion
+            raise Exception("No has introducido un Tk")
+            # return None
+        print("Has introducido un Tk")
+        _tk = LabelFrame(_root, text=self.nombre)
+        
+        _tk.pack(side=LEFT)
+        return _tk             
+    
     def addNombre(self, n): # no se si se va a usar pero weno
         if n != "" and self.nombre != "":
             n = n + ":"
@@ -139,39 +157,70 @@ class Exp(Function):
     
 class Const(Function): # f(t) = valor
     def __init__(self, valor, tk:Tk=None, nombre="C", show=False, fr=None, to=None, step=None):
-        super().__init__(tk, nombre)
+        super().__init__(show, tk, nombre)
         self.valor = valor
-        
         self.fr = fr
         self.to = to
         self.step = step
         
         if step is None:
-            self.step = valor / 100
+            self.step = valor / 1000
         if fr is None:
-            self.fr = valor - 10 * self.step
+            # self.fr = valor - 1000 * self.step
+            self.fr = 0
         if to is None:
-            self.to = valor + 10 * self.step
+            self.to = valor + 1500 * self.step
 
-        if show:
-            self.doShow()
+        # if show:
+            # self.doShow()
         
     def fun(self, tiempo):
         return self.valor # más rápido
         # return np.full(CHUNK, self.valor)
         
     def setVal(self, val):
-        self.valor = val
+        self.valor = float(val)
         
-    def doShow(self):
-        super().doShow()
-        if self.show is False and self.tk is not None: # si es None o True no entra
-            slider=Scale(self.tk, from_=self.fr, to=self.to, resolution=self.step, orient=HORIZONTAL, label=self.nombre, command=self.setVal)
-            slider.set(self.valor)
-            slider.pack
+    def doShow(self, tk:Tk=None):
+        '''crea un frame con su nombre para meter dentro sus elementos de forma recursiva'''
+        '''Const es un caso especial porque es un caso base'''
+        # _tk = super().doShow(tk) # por defecto se haria esto
+         
+        # pero se hace lo siguiente para no crear un frame:
+        
+        if self.show is False:
+            return None # para que acabe la recursion
+        
+        _root = self.getRoot(tk)
+        if _root is None:
+            print("No has introducido un Tk")
+            return None # para que acabe la recursion
+            raise Exception("No has introducido un Tk")
+            # return None
+        print("Has introducido un Tk")        
+        # hasta aqui 
+         
+        # descomentar esto para hacerlo sin que sea caso base      
+        # if self.show is False:
+        #     return None # para que acabe la recursion
+        # _root = self.getRoot(_tk) # obtenemos el frame en el que vamos a añadir las cosas
+        
+        if _root is None:
+            print("No has introducido un Tk")
+            return None # para que acabe la recursion
+        print("Has introducido un Tk")
+        
+        # text = Text(_root,height=4,width=40)
+        # text.pack(side=BOTTOM)
+        
+        # hacemos un slider y lo metemos en root
+        slider=Scale(_root, from_=self.fr, to=self.to, resolution=self.step, orient=HORIZONTAL, label=self.nombre, command=self.setVal)
+        slider.set(self.valor)
+        slider.pack(side=LEFT)
+        return _root # diria que no hace falta pero bueno
 
 class C(Const): # misma que const pero mas corta
-    def __init__(self, valor, tk:Tk=None, nombre="C", show=False, fr=None, to=None, step=None):
+    def __init__(self, valor, tk:Tk=None, nombre="", show=False, fr=None, to=None, step=None):
         super().__init__(valor, tk, nombre, show, fr, to, step)
         
 class X(Function): # f(t) = valor*t
@@ -190,9 +239,10 @@ class X(Function): # f(t) = valor*t
         return tiempo * _valor.next(tiempo) + z
     
     def doShow(self):
-        super().doShow()
-        self.valor.addNombre(self.nombre)
-        self.valor.doShow()
+        self.tk = super().doShow()
+        if self.show is False and self.root is not None: # si es None o True no entra; lo mismo deberia de quitar lo del self.root para que de error
+            self.valor.addNombre(self.nombre)
+            self.valor.doShow()
     
 class XP(Function):
     def __init__(self, valor=C(1), exp=C(1), tk:Tk=None, avoid0 = False, nombre="X^exp", show=False):
@@ -211,11 +261,12 @@ class XP(Function):
 
     def doShow(self):
         super().doShow() # crea el tk.frame
-        self.val.addNombre(self.nombre) 
-        self.val.doShow() # añade el valor al frame
-        self.exp.addNombre("exp") # creo
-        self.exp.addNombre(self.nombre)
-        self.exp.doShow() # añade el exponente al frame
+        if self.show is False and self.root is not None: # si es None o True no entra; lo mismo deberia de quitar lo del self.root para que de error
+            self.val.addNombre(self.nombre) 
+            self.val.doShow() # añade el valor al frame
+            self.exp.addNombre("exp") # creo
+            self.exp.addNombre(self.nombre)
+            self.exp.doShow() # añade el exponente al frame
 
 
 

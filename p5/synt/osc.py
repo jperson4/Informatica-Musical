@@ -12,7 +12,7 @@ from synt.function import *
 
 class Osc(Function):    
     def __init__(self, freq:Function, max=C(1), min=C(-1), amp:Function=None, phase=C(0), tk:Tk=None, nombre="", show=False):
-        super().__init__(tk, nombre)
+        super().__init__(show, tk, nombre)
         self.freq = freq
         self.phase = phase
         self.frame = 0
@@ -30,23 +30,31 @@ class Osc(Function):
     def fun(self, tiempo):
         return np.zeros(len(tiempo))        
     
-    def doShow(self):
-        super().doShow()
+    def doShow(self, tk:Tk=None):
+        _tk = super().doShow(tk)
+        _root = self.getRoot(_tk) # obtenemos el frame en el que vamos a añadir las cosas
+        
+        if _root is None:
+            print("No has introducido un Tk")
+            return None # para que acabe la recursion
+        print("Has introducido un Tk")
+        
         self.freq.addNombre("freq")
-        self.freq.doShow()
+        self.freq.addNombre(self.nombre)
+        self.freq.doShow(_root)
         if self.amp is not None:
             self.amp.addNombre("amp")
             self.amp.addNombre(self.nombre)
-            self.amp.doShow()
+            self.amp.doShow(_root)
         else:
             self.max.addNombre("max")
             self.max.addNombre(self.nombre)
             self.min.addNombre("min")
             self.min.addNombre(self.nombre)
-            self.max.doShow()
-            self.min.doShow()
+            self.max.doShow(_root)
+            self.min.doShow(_root)
         self.phase.addNombre("phase")
-        self.phase.doShow()       
+        self.phase.doShow(_root)       
             
     def getFreq(self):
         return self.freq
@@ -96,7 +104,11 @@ class Sine(Osc): # f(t) = amp * sin(t * 2pi * freq + phase)
             _amp = self.amp.next(tiempo)
         
         # funcion
-        onda = np.sin(tiempo * (2 * np.pi * _freq/SRATE) + _phase)
+        p3 = _freq/SRATE
+        p2 = tiempo * (2 * np.pi)
+        p1 = p2 * p3
+        onda = np.sin(p1 + _phase)
+        # onda = np.sin(tiempo * (2 * np.pi * _freq/SRATE) + _phase)
         return onda * _amp + _offset
     
 class Triangle(Osc): # f(t) = amp * arcsin(sin(t * 2pi * freq + phase)) * 2/pi   -> 2/pi es para que vaya de 1 a -1
