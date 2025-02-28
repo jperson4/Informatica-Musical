@@ -177,6 +177,12 @@ class Const(Function): # f(t) = valor
         slider=Scale(tk, from_=self.fr, to=self.to, resolution=self.step, orient=HORIZONTAL, label=self.nombre, command=self.setVal)
         slider.set(self.valor)
         slider.pack(side=LEFT)
+        
+        # _tk = super().doShow(tk)
+        # self.fr.doShow(_tk)
+        # self.to.doShow(_tk)
+        # self.step.doShow(_tk)
+        
         return tk # diria que no hace falta pero bueno
 
 class C(Const): # misma que const pero mas corta
