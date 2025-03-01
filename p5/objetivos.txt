@@ -16,8 +16,10 @@ hacer el doshow de las clases:
     effects
     envolv
     function <- DONE
-    instrumento
-    mixer
+    instrumento 
+    mixer <- DONE
     osc <- DONE
     otrasFunc
     synt <- IMPORTANTE
+
+rehacer el synt para que sea freq, onda, envolvente

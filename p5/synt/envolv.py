@@ -1,19 +1,22 @@
 
 from synt.const import *
 import numpy as np
+from tkinter import *
 
 
 
 '''Envolvente: Recibe una serie de puntos y crea una funcion que los recorre'''
 class Env:
-    def __init__(self, fun):
+    def __init__(self, fun, nombre="Env", show=True):
         self.fun = fun
         self.frame = 0
+        self.nombre = nombre
+        self.show = show
     
     def next(self, tiempo=None):
-        
+        _tiempo = []
         if tiempo is None: # guarda su propio frame si no le dan uno
-            _tiempo = np.arange(self.frame, self.frame+CHUNK)
+            _tiempo = np.arange(self.frame, self.frame + CHUNK)
             self.frame += CHUNK
         else:
             _tiempo = tiempo
@@ -23,16 +26,31 @@ class Env:
             part = np.concatenate((part, np.zeros(CHUNK-len(part))))
         return part
     
+    def doShow(self, tk:Tk, bg="#808090", side=LEFT):
+        '''crea un frame con su nombre para meter dentro sus elementos de forma recursiva'''
+        if self.show is False:
+            return None # para que acabe la recursion
+        _tk = LabelFrame(tk, text=self.nombre, bg=bg)
+        _tk.pack(side=side)
+        return _tk    
+    
+    def addNombre(self, nombre):
+        self.nombre = nombre
+        
+    def reset(self):
+        self.frame = 0
+        
+    
 class NoEnv(Env):
-    def __init__(self):
+    def __init__(self, nombre="Env", show=True):
         super().__init__(self.fun)
         
     def fun(self, tiempo=None):
         return np.full(CHUNK, 1)
     
 class EnvPP(Env):
-    def __init__(self, points):
-        super().__init__(self.fun)
+    def __init__(self, points, nombre="Env", show=True):
+        super().__init__(self.fun, nombre, show)
         env = np.zeros(0)
         # generamos la envolvente
         x0, y0 = points[0]
@@ -78,12 +96,12 @@ class EnvADSR(EnvPP):
     rel = segundos que tarda en decrecer
     dur = duracion total de la señal
     '''
-    def __init__(self, atk, dec, sus, rel, dur):
+    def __init__(self, atk, dec, sus, rel, dur, nombre="Env", show=True):
         _atk = (atk, 1)
         _dec = (dec, sus)
         _sus = (dur - rel, sus)
         _rel = (rel, 0)
-        super().__init__([_atk, _dec, _sus, _rel])
+        super().__init__([_atk, _dec, _sus, _rel], nombre, show)
 
 # Esta envolvente tiene tres estados, atk, rel y off
 class EnvInstrumento:
@@ -94,7 +112,7 @@ class EnvInstrumento:
     sus = valor que coge al decaer
     rel = segundos que tarda en decrecer
     '''
-    def __init__(self, atk, dec, sus, rel):
+    def __init__(self, atk, dec, sus, rel, nombre="Env", show=True):
         _atk = (atk, 1)
         _dec = (dec, sus)
         # _sus = (dur - rel, sus)
@@ -102,8 +120,8 @@ class EnvInstrumento:
         self._rel = _rel
         self.sus = sus
         
-        self.atk = EnvPP([_atk, _dec]) # empieza en 0, sube a 1 y luego decae a sus
-        self.rel = EnvPP([(0,sus), _rel]) # empieza en sus y baja hasta 0 en rel segundos
+        self.envAtk = EnvPP([_atk, _dec], nombre, show) # empieza en 0, sube a 1 y luego decae a sus
+        self.envRel = EnvPP([(0,sus), _rel], nombre, show) # empieza en sus y baja hasta 0 en rel segundos
         self.state = 'atk'
         
     
@@ -111,10 +129,10 @@ class EnvInstrumento:
         ret = 0
         # print(self.state)
         if self.state == 'atk':
-            ret = self.atk.next()
+            ret = self.envAtk.next()
         elif self.state == 'rel':           
-            ret = self.rel.next()
-            if self.rel.frame > self._rel[0] * SRATE:
+            ret = self.envRel.next()
+            if self.envRel.frame > self._rel[0] * SRATE:
                 # print(self.rel.frame)
                 # print(self._rel[0])
                 print('off')
@@ -129,12 +147,20 @@ class EnvInstrumento:
     '''    
     def noteOff(self):
         self.state = 'rel'#TODO: INFO era que tenia puesto == 
-        self.rel = EnvPP([(0, self.atk.lastY), self._rel]) # empieza en el ultimo y baja hasta 0 en rel segundos        
+        self.rel = EnvPP([(0, self.envAtk.lastY), self._rel]) # empieza en el ultimo y baja hasta 0 en rel segundos        
         
     def getLast(self):
         if self.state == 'atk':
-            return self.atk.lastY
+            return self.envAtk.lastY
         if self.state == 'rel':
-            return self.rel.lastY
+            return self.envRel.lastY
         if self.state == 'off':
             return 0
+
+    def doShow(self, tk:Tk, bg="#808090", side=LEFT):
+        return tk #TODO
+    
+    def reset(self):
+        self.envAtk.reset()
+        self.envRel.reset()
+        self.state = 'atk'

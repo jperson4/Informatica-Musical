@@ -48,14 +48,14 @@ class Function:
         '''esto es lo que se modiica en cada implementacion de Function'''
         return np.zeros(CHUNK)
     
-    def doShow(self, tk:Tk, bg="#808090"):
+    def doShow(self, tk:Tk, bg="#808090", side=LEFT):
         '''crea un frame con su nombre para meter dentro sus elementos de forma recursiva'''
         if self.show is False:
             return None # para que acabe la recursion
         
         _tk = LabelFrame(tk, text=self.nombre, bg=bg)
         
-        _tk.pack(side=LEFT)
+        _tk.pack(side=side)
         return _tk             
     
     def addNombre(self, n): # no se si se va a usar pero weno
@@ -171,7 +171,7 @@ class Const(Function): # f(t) = valor
     def setVal(self, val):
         self.valor = float(val)
         
-    def doShow(self, tk:Tk):
+    def doShow(self, tk:Tk, bg="#808090", side=LEFT, orient=HORIZONTAL):
         '''crea un frame con su nombre para meter dentro sus elementos de forma recursiva'''
         '''Const es un caso especial porque es un caso base'''
         
@@ -179,9 +179,9 @@ class Const(Function): # f(t) = valor
             return None # para que acabe la recursion
         
         # hacemos un slider y lo metemos en root
-        slider=Scale(tk, from_=self.fr, to=self.to, resolution=self.step, orient=HORIZONTAL, label=self.nombre, command=self.setVal)
+        slider=Scale(tk, from_=self.fr, to=self.to, resolution=self.step, orient=orient, label=self.nombre, command=self.setVal)
         slider.set(self.valor)
-        slider.pack(side=LEFT)
+        slider.pack(side=side)
         
         # _tk = super().doShow(tk)
         # self.fr.doShow(_tk)

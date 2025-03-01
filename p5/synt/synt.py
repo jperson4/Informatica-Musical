@@ -8,32 +8,39 @@ from synt.osc import *
 
 import math
 
-class Synt(Osc):
+class Synt(Function):
     '''Los synt son un oscilador que emplea otro oscilador para formar la onda puede estar sujeto a una envolvente'''
-    def __init__(self, freq:Function, onda:Osc, amp=Const(1), phase=Const(0), env=NoEnv):
-        super().__init__(freq, None, None, amp, phase)
+    def __init__(self, freq:Function, onda:Osc, amp=Const(1), env=NoEnv(), 
+                 nombre="Synt", show=True):
+        super().__init__(nombre, show)
         self.onda = onda
-
+        self.freq = freq
+        self.amp = amp
         self.onda.setFreq(freq)
-        self.onda.setAmp(amp)
-        self.onda.setPhase(phase)
         self.env = env
     
     def fun(self, tiempo):
-        return self.onda.next(tiempo) * self.env.next(tiempo)
+        return self.onda.next(tiempo) * self.env.next(tiempo) * self.amp.next(tiempo)
     
-    def doShow(self, tk):
+    def doShow(self, tk, bg="#808090", side=LEFT):
         _tk = super().doShow(tk)
-        self.amp.addNombre("amp")
-        self.amp.doShow(_tk)
-        self.freq.addNombre("freq")
-        self.freq.doShow(_tk)
-        self.phase.addNombre("phase")
-        self.phase.doShow(_tk)
+        # self.amp.addNombre(self.nombre)
+
+        # self.phase.addNombre(self.nombre)
+        # self.freq.addNombre("freq")
+        # self.freq.doShow(_tk)
+        # self.phase.addNombre(self.nombre)
+        # self.phase.addNombre("phase")
+        # self.phase.doShow(_tk)
+        # self.onda.addNombre(self.nombre)
         self.onda.addNombre("onda")
-        self.onda.doShow(_tk)
+        self.onda.doShow(_tk, bg, side)
+        # self.onda.addNombre(self.nombre)
         self.env.addNombre("env")
-        self.env.doShow(_tk)
+        self.env.doShow(_tk, bg, side)
+        self.amp.addNombre("amp")
+        self.amp.doShow(_tk, bg, side)
+        return _tk
 
     def setFreq(self, value):
         self.freq = value

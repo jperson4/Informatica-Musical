@@ -13,8 +13,9 @@ from synt.effects import *
 from synt.instrumento import *
 from synt.mixer import *
 
-class Instrumento:
-    def __init__(self, tk:Tk, synt, env, nombre='Instrumento'):
+class Instrumento(Function):
+    def __init__(self, synt, env, nombre='Instrumento', show=True):
+        super().__init__(show, nombre)
         # Creación de los osciladores
         # self.mixer = Mixer()
         self.synt = synt
@@ -26,23 +27,7 @@ class Instrumento:
 
         self.octava = 4
         
-        # interfaz
-        frame = LabelFrame(tk, text=nombre, bg="#808090")
-        frame.pack(side=LEFT)
         
-        slider_octava =Scale(frame, from_=-1, to=10, resolution=1, orient=HORIZONTAL, label="Octava", command=self.change_octava, length=400)
-        slider_octava.set(self.octava)
-        slider_octava.pack()
-
-        
-        # una ventana de texto interactiva para poder lanzar notas con el teclado del ordenador
-        text = Text(frame,height=4,width=40)
-
-        text.pack(side=BOTTOM)
-        text.bind('<KeyPress>', self.down)
-        text.bind('<KeyRelease>', self.up)
-
-
     
     def noteOn(self,midiNote):
         # si está el dict de canales apagamos nota actual con envolvente de fadeout
@@ -64,12 +49,12 @@ class Instrumento:
         freq= freqsMidi[midiNote] * 2 ** self.octava
         print(freq)
         synt = copy(self.synt)
+        self.env.reset()
         env = copy(self.env)
         synt.setFreq(C(freq))
         synt.setEnv(env)
         self.channels[midiNote] = synt
-        # self.channels[midiNote] = self.synt(midiNote, ondas = [osc.Sine()], env=EnvInstrumento(.01, .1, .7, .3)) #megasimple
-        
+        # self.channels[midiNote] = self.synt(midiNote, ondas = [osc.Sine()], env=EnvInstrumento(.01, .1, .7, .3)) #megasimple  
         
     def noteOff(self, midiNote):
         if midiNote in self.channels: # está el dict, release
@@ -77,7 +62,6 @@ class Instrumento:
             
     def change_octava(self, val):
         self.octava = int(val) - 2
-
 
     # identificar y mandar reproducir la nota
     def down(self, event):
@@ -93,6 +77,25 @@ class Instrumento:
             midiNote = teclas.index(c) + 48# buscamos indice y hacemos el noteOff
             print(f'noteOff {midiNote}')
             self.noteOff(midiNote)
+            
+    def doShow(self, tk, bg="#808090", side=LEFT):
+        _tk = super().doShow(tk)
+        
+        self.synt.doShow(_tk, bg, side)
+        self.env.doShow(_tk, bg, side)     
+        
+                # _tk = LabelFrame(_frame, text=self.nombre, bg="#808090")        
+        slider_octava =Scale(_tk, from_=-1, to=10, resolution=1, orient=HORIZONTAL, label="Octava", command=self.change_octava, length=400)
+        slider_octava.set(self.octava)
+        slider_octava.pack()
+        
+        # una ventana de texto interactiva para poder lanzar notas con el teclado del ordenador
+        text = Text(_tk,height=4,width=40)
+
+        text.pack(side=LEFT)
+        text.bind('<KeyPress>', self.down)
+        text.bind('<KeyRelease>', self.up) 
+              
             
     # siguiente chunck del generador: sumamos señal de canales y hacemos limpia de silenciados
     def next(self):

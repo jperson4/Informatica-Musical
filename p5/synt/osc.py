@@ -30,7 +30,7 @@ class Osc(Function):
     def fun(self, tiempo):
         return np.zeros(len(tiempo))        
     
-    def doShow(self, tk:Tk):
+    def doShow(self, tk:Tk, bg="#808090", side=LEFT):
         _tk = super().doShow(tk)
         
         self.freq.addNombre("freq")
@@ -49,7 +49,8 @@ class Osc(Function):
             self.min.doShow(_tk)
         self.phase.addNombre("phase")
         # self.phase.addNombre(self.nombre)
-        self.phase.doShow(_tk)       
+        self.phase.doShow(_tk)
+        return _tk       
             
     def getFreq(self):
         return self.freq
