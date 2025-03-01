@@ -113,15 +113,26 @@ class EnvInstrumento:
     rel = segundos que tarda en decrecer
     '''
     def __init__(self, atk, dec, sus, rel, nombre="Env", show=True):
-        _atk = (atk, 1)
-        _dec = (dec, sus)
-        # _sus = (dur - rel, sus)
-        _rel = (rel, 0)
-        self._rel = _rel
-        self.sus = sus
+        # _atk = (atk, 1)
+        # _dec = (dec, sus)
+        # _rel = (rel, 0)
         
-        self.envAtk = EnvPP([_atk, _dec], nombre, show) # empieza en 0, sube a 1 y luego decae a sus
-        self.envRel = EnvPP([(0,sus), _rel], nombre, show) # empieza en sus y baja hasta 0 en rel segundos
+        _atk = atk
+        _dec = dec 
+        _sus = sus
+        _rel = rel
+        
+        # _sus = (dur - rel, sus)
+        
+        self._rel = _rel
+        self._atk = _atk
+        self._dec = _dec
+        self._sus = _sus
+        self.show = show
+        self.nombre = nombre
+        
+        self.envAtk = EnvPP([(0,0), (self._atk, 1), (self._dec, self._sus)], nombre, show) # empieza en 0, sube a 1 y luego decae a sus
+        self.envRel = EnvPP([(0,self._sus), (self._rel, 0)], nombre, show) # empieza en sus y baja hasta 0 en rel segundos
         self.state = 'atk'
         
     
@@ -130,9 +141,10 @@ class EnvInstrumento:
         # print(self.state)
         if self.state == 'atk':
             ret = self.envAtk.next()
+            # print(ret[0])
         elif self.state == 'rel':           
             ret = self.envRel.next()
-            if self.envRel.frame > self._rel[0] * SRATE:
+            if self.envRel.frame > self._rel * SRATE:
                 # print(self.rel.frame)
                 # print(self._rel[0])
                 print('off')
@@ -147,7 +159,7 @@ class EnvInstrumento:
     '''    
     def noteOff(self):
         self.state = 'rel'#TODO: INFO era que tenia puesto == 
-        self.rel = EnvPP([(0, self.envAtk.lastY), self._rel]) # empieza en el ultimo y baja hasta 0 en rel segundos        
+        self.envRel = EnvPP([(0,self.envAtk.lastY), (self._rel, 0)], self.nombre, self.show) # empieza en sus y baja hasta 0 en rel segundos
         
     def getLast(self):
         if self.state == 'atk':
@@ -158,7 +170,58 @@ class EnvInstrumento:
             return 0
 
     def doShow(self, tk:Tk, bg="#808090", side=LEFT):
-        return tk #TODO
+        '''crea un frame con su nombre para meter dentro sus elementos de forma recursiva'''
+        if self.show is False:
+            return None # para que acabe la recursion
+        
+        _tk = LabelFrame(tk, text=self.nombre, bg=bg)
+        
+        s_atk=Scale(_tk, from_=0., to=2., resolution=0.05, orient=HORIZONTAL, label="atk", command=self.changeAtk)
+        s_atk.set(self._atk)
+        s_atk.pack(side=side)
+        
+        s_dec=Scale(_tk, from_=0., to=1., resolution=0.05, orient=HORIZONTAL, label="dec", command=self.changeDec)
+        s_dec.set(self._dec)
+        s_dec.pack(side=side)
+        
+        s_sus=Scale(_tk, from_=0., to=1., resolution=0.05, orient=HORIZONTAL, label="sus", command=self.changeSus)
+        s_sus.set(self._sus)
+        s_sus.pack(side=side)
+        
+        s_rel=Scale(_tk, from_=0., to=4., resolution=0.05, orient=HORIZONTAL, label="rel", command=self.changeRel)
+        s_rel.set(self._rel)
+        s_rel.pack(side=side)
+        
+        _tk.pack(side=side)
+        
+        return _tk  
+    
+    def changeEnvs(self):
+            
+        _atkFrame = self.envAtk.frame
+        _relFrame = self.envRel.frame
+        
+        self.envAtk = EnvPP([(self._atk, 1), (self._dec, self._sus)], self.nombre, False) # empieza en 0, sube a 1 y luego decae a sus
+        self.envRel = EnvPP([(0,self._sus), (self._rel, 0)], self.nombre, False) # empieza en sus y baja hasta 0 en rel segundos
+
+        self.envAtk.frame = _atkFrame
+        self.envRel.frame = _relFrame
+         
+    def changeAtk(self, val):
+        self._atk = float(val)
+        self.changeEnvs()
+        
+    def changeRel(self, val):
+        self._rel = float(val)
+        self.changeEnvs()
+        
+    def changeSus(self, val):
+        self._sus = float(val)
+        self.changeEnvs()
+        
+    def changeDec(self, val):
+        self._dec = float(val)
+        self.changeEnvs()
     
     def reset(self):
         self.envAtk.reset()

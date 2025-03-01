@@ -99,7 +99,7 @@ class Instrumento(Function):
         self.env.doShow(_tk, bg, side)  
             
     # siguiente chunck del generador: sumamos señal de canales y hacemos limpia de silenciados
-    def next(self):
+    def next(self, tiempo=None):
         out = np.zeros(CHUNK)          
         for c in list(self.channels):            # convertimos las keys a lista para mantener la lista de claves original
             # print(self.channels[c].getEnv().state)

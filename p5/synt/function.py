@@ -229,7 +229,7 @@ class XP(Function):
         z = 0
         if self.avoid0:
             z = 0.000001
-        return (tiempo * self.val.next(tiempo)) ** self.exp.next(tiempo) + z
+        return self.val.next(tiempo) ** self.exp.next(tiempo) + z
     
     def doShow(self,  tk:Tk):
         _tk = super().doShow(tk)

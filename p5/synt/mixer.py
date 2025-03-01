@@ -43,4 +43,11 @@ class Mixer(Function):
     def fun(self, tiempo):
         return self.mix(self.oscs, tiempo)
     
+    def doShow(self, tk, bg="#808090"):
+        _tk = super().doShow(tk, bg)
+        for o in range (0, len(self.oscs)):
+            self.oscs[o].addNombre(str(o))
+            self.oscs[o].doShow(_tk, bg, side=BOTTOM)
+        return _tk
+    
     

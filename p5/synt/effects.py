@@ -37,6 +37,7 @@ class Delay:
         return _s
 
 # TODO: en valores muy pequeños, intenta multiplicar arrays de tamaños distintos
+# TODO: hacer que use C
 class Echo:
     def __init__(self, osc, val=.5, time=1, restar=False):
         self.osc = osc

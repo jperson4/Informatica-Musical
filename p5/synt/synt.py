@@ -42,8 +42,11 @@ class Synt(Function):
         # self.onda.addNombre(self.nombre)
         self.env.addNombre("env")
         self.env.doShow(_tk, bg, side)
-        self.amp.addNombre("amp")
-        self.amp.doShow(_tk, bg, side)
+        
+        
+        # raro
+        # self.amp.addNombre("amp")
+        # self.amp.doShow(_tk, bg, side)
         return _tk
 
     def setFreq(self, value):
@@ -109,15 +112,18 @@ class PolySynt(Function):
         onda = self.mixer.next(tiempo)
         return onda * self.amp.next(tiempo)
     
-    def doShow(self, tk, bg="#808090", side=LEFT):
-        _tk = super().doShow(tk)
+    def doShow(self, tk, bg="#808090", side=LEFT, showAll=True):
+        _tk = super().doShow(tk, side=side)
+        
+        self.amp.doShow(_tk, bg, side, VERTICAL)
         if _tk is None:
             return None  
-        # for i in range(0, self.n):
-        #     self.synts[i].doShow(_tk)
-        self.amp.addNombre("amp")
-        self.amp.doShow(_tk, bg, side, VERTICAL)
-        self.mixer.doShow(_tk)
+        if not showAll:
+            return _tk
+        for i in range(0, self.n):
+            self.synts[i].doShow(_tk)
+        # self.amp.addNombre("amp")
+        # self.mixer.doShow(_tk)
         return _tk
 
     def setAmps(self, amps):
@@ -174,20 +180,20 @@ class HarmSynt(PolySynt):
             self.synts[m].setFreq(self.freqs[m])
             
     def doShow(self, tk, bg="#808090", side=LEFT):
-        _tk = super().doShow(tk)
+        _tk = super().doShow(tk, side=side, showAll=False)
         if _tk is None:
             return None  
         for i in range(0, self.n):
             self.muls[i].addNombre("mul")
             self.muls[i].addNombre(i)
-            self.muls[i].doShow(_tk)
+            self.muls[i].doShow(_tk, side=BOTTOM)
             
             self.synts[i].addNombre("synts")
             self.synts[i].addNombre(i)
-            self.synts[i].doShow(_tk)
+            self.synts[i].doShow(_tk, side=BOTTOM)
         
-        self.amp.addNombre("amp")
-        self.amp.doShow(_tk)
+        # self.amp.addNombre("amp")
+        # self.amp.doShow(_tk)
             
     def setEnv(self, env):
         for s in self.synts:
