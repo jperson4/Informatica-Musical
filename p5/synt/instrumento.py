@@ -1,7 +1,7 @@
 import numpy as np
 from tkinter import *
 
-from copy import copy
+from copy import deepcopy
 import math
 
 from synt.const import *
@@ -14,7 +14,7 @@ from synt.instrumento import *
 from synt.mixer import *
 
 class Instrumento(Function):
-    def __init__(self, synt, env, nombre='Instrumento', show=True):
+    def __init__(self, synt, env, show=True, nombre='Instrumento'):
         super().__init__(show, nombre)
         # Creación de los osciladores
         # self.mixer = Mixer()
@@ -48,9 +48,10 @@ class Instrumento(Function):
         
         freq= freqsMidi[midiNote] * 2 ** self.octava
         print(freq)
-        synt = copy(self.synt)
+        synt = deepcopy(self.synt)
+        # arreglar esta vaina
         self.env.reset()
-        env = copy(self.env)
+        env = deepcopy(self.env)
         synt.setFreq(C(freq))
         synt.setEnv(env)
         self.channels[midiNote] = synt
@@ -80,22 +81,22 @@ class Instrumento(Function):
             
     def doShow(self, tk, bg="#808090", side=LEFT):
         _tk = super().doShow(tk)
-        
-        self.synt.doShow(_tk, bg, side)
-        self.env.doShow(_tk, bg, side)     
-        
-                # _tk = LabelFrame(_frame, text=self.nombre, bg="#808090")        
-        slider_octava =Scale(_tk, from_=-1, to=10, resolution=1, orient=HORIZONTAL, label="Octava", command=self.change_octava, length=400)
+        if _tk is None:
+            return None        
+        # _tk = LabelFrame(_frame, text=self.nombre, bg="#808090")        
+        slider_octava =Scale(_tk, from_=-1, to=10, resolution=1, orient=HORIZONTAL, label="Octava", command=self.change_octava, length=310)
         slider_octava.set(self.octava)
         slider_octava.pack()
         
         # una ventana de texto interactiva para poder lanzar notas con el teclado del ordenador
         text = Text(_tk,height=4,width=40)
 
-        text.pack(side=LEFT)
+        text.pack(side=TOP)
         text.bind('<KeyPress>', self.down)
         text.bind('<KeyRelease>', self.up) 
               
+        self.synt.doShow(_tk, bg, side)
+        self.env.doShow(_tk, bg, side)  
             
     # siguiente chunck del generador: sumamos señal de canales y hacemos limpia de silenciados
     def next(self):

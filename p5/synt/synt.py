@@ -2,6 +2,8 @@ import numpy as np
 from synt.const import *
 from synt.function import *
 from synt.envolv import *
+from copy import deepcopy
+from copy import copy
 from synt.mixer import *
 
 from synt.osc import *
@@ -10,9 +12,9 @@ import math
 
 class Synt(Function):
     '''Los synt son un oscilador que emplea otro oscilador para formar la onda puede estar sujeto a una envolvente'''
-    def __init__(self, freq:Function, onda:Osc, amp=Const(1), env=NoEnv(), 
+    def __init__(self, freq:Function, onda:Osc, amp:Const=Const(1), env=NoEnv(), 
                  nombre="Synt", show=True):
-        super().__init__(nombre, show)
+        super().__init__(show, nombre)
         self.onda = onda
         self.freq = freq
         self.amp = amp
@@ -24,6 +26,8 @@ class Synt(Function):
     
     def doShow(self, tk, bg="#808090", side=LEFT):
         _tk = super().doShow(tk)
+        if _tk is None:
+            return None  
         # self.amp.addNombre(self.nombre)
 
         # self.phase.addNombre(self.nombre)
@@ -63,25 +67,25 @@ class Synt(Function):
 # TODO añadir un mixer
 class PolySynt(Function):
     def __init__(self, freqs:list[Function], ondas:list[Osc], amp=C(1), amps=[Const(1)], 
-                 phases=[Const(0)], envs=[NoEnv()], fmix=tanh, nombre="polysint", show=False):
+                 phases=[Const(0)], envs=[NoEnv()], fmix=tanh, nombre="polysint", show=True):
         super().__init__(show, nombre)
         # ajsutar que todo tenga el mismo numero de elementos
         n = len(freqs)
         self.n = n
 
         while len(ondas) < n:
-            ondas.append(ondas[0])
+            ondas.append(copy(ondas[0]))
         while len(amps) < n:
-            amps.append(amps[0])
+            amps.append(copy(amps[0]))
         while len(phases) < n:
-            phases.append(phases[0])
+            phases.append(copy(phases[0]))
         while len(envs) < n:
-            envs.append(envs[0])
+            envs.append(copy(envs[0]))
         
         self.synts = []
         # usamos una lista de sintetizadores
         for i in range(0, n):
-            self.synts.append(Synt(freqs[i], ondas[i], amps[i], phases[i], envs[i]))
+            self.synts.append(Synt(freqs[i], ondas[i], amps[i], envs[i], str(i), self.show))
             # = Synt(freqs[i], ondas[i], amps[i], phases[i], envs[i])
         
         # guardamos para poder devolverlas si se piden
@@ -105,13 +109,16 @@ class PolySynt(Function):
         onda = self.mixer.next(tiempo)
         return onda * self.amp.next(tiempo)
     
-    def doShow(self, tk):
+    def doShow(self, tk, bg="#808090", side=LEFT):
         _tk = super().doShow(tk)
+        if _tk is None:
+            return None  
         # for i in range(0, self.n):
         #     self.synts[i].doShow(_tk)
         self.amp.addNombre("amp")
-        self.amp.doShow(_tk)
+        self.amp.doShow(_tk, bg, side, VERTICAL)
         self.mixer.doShow(_tk)
+        return _tk
 
     def setAmps(self, amps):
         for i in range(0, self.n):
@@ -151,10 +158,9 @@ class PolySynt(Function):
         
 #TODO: hacerlo nuevo
 class HarmSynt(PolySynt):
-    def __init__(self, freq:Function, muls:Function, ondas, amp=C(1), 
-                 amps=[Const(1)], phases=[Const(0)], env=NoEnv(), afinacion=notasAJ,
-                 fmix=tanh ,nombre="harmsynt", show=False):
-                
+    def __init__(self, freq:Function, muls:Function, ondas, amp=C(1, show=True), 
+                 amps=[Const(1)], phases=[Const(0)], env=NoEnv(),
+                 fmix=tanh ,nombre="harmsynt", show=True):      
         self.muls = muls
         freqs = []
         for m in muls:
@@ -167,8 +173,10 @@ class HarmSynt(PolySynt):
             self.freqs[m] = val * self.muls[m]
             self.synts[m].setFreq(self.freqs[m])
             
-    def doShow(self, tk):
+    def doShow(self, tk, bg="#808090", side=LEFT):
         _tk = super().doShow(tk)
+        if _tk is None:
+            return None  
         for i in range(0, self.n):
             self.muls[i].addNombre("mul")
             self.muls[i].addNombre(i)

@@ -31,25 +31,26 @@ class Osc(Function):
         return np.zeros(len(tiempo))        
     
     def doShow(self, tk:Tk, bg="#808090", side=LEFT):
-        _tk = super().doShow(tk)
-        
+        _tk = super().doShow(tk, bg, side)
+        if _tk is None:
+            return None  
         self.freq.addNombre("freq")
         # self.freq.addNombre(self.nombre)
-        self.freq.doShow(_tk)
+        self.freq.doShow(_tk, bg, side)
         if self.amp is not None:
             self.amp.addNombre("amp")
             # self.amp.addNombre(self.nombre)
-            self.amp.doShow(_tk)
+            self.amp.doShow(_tk, bg, side)
         else:
             self.max.addNombre("max")
             # self.max.addNombre(self.nombre)
             self.min.addNombre("min")
             # self.min.addNombre(self.nombre)
-            self.max.doShow(_tk)
-            self.min.doShow(_tk)
+            self.max.doShow(_tk, bg, side)
+            self.min.doShow(_tk, bg, side)
         self.phase.addNombre("phase")
         # self.phase.addNombre(self.nombre)
-        self.phase.doShow(_tk)
+        self.phase.doShow(_tk, bg, side)
         return _tk       
             
     def getFreq(self):
@@ -193,8 +194,10 @@ class Rep(Osc): # repite una funcion en base a la frecuencia
         
         return onda * _amp + _offset
     
-    def doShow(self):
-        _tk = super().doShow()
+    def doShow(self, tk, bg="#808090", side=LEFT):
+        _tk = super().doShow(tk, bg, side)
+        if _tk is None:
+            return None  
         self.func.addNombre("func")
         self.func.doShow(_tk)
     
@@ -216,10 +219,12 @@ class Sampler(Function):
         else:
             return _sample[frame:frame+CHUNK]
         
-    def doShow(self):
-        _tk =super().doShow()
+    def doShow(self, tk, bg="#808090", side=LEFT):
+        _tk =super().doShow(tk, bg, side)
+        if _tk is None:
+            return None  
         self.sf.addNombre("sf")
-        self.sf.doShow(_tk)
+        self.sf.doShow(_tk, bg, side)
 
 
 class RSampler(Osc):

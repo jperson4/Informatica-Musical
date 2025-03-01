@@ -14,7 +14,7 @@ from tkinter import *
 '''
 
 class Function:
-    def __init__(self, show, nombre=""):
+    def __init__(self, show=False, nombre=""):
         self.frame = 0 
         self.nombre = nombre
         self.show = show # empieza a false para que solo se pueda cambiar una vez
@@ -60,14 +60,14 @@ class Function:
     
     def addNombre(self, n): # no se si se va a usar pero weno
         if n != "" and self.nombre != "":
-            n = n + ":"
+            n = str(n) + ":"
         self.nombre = n + self.nombre
     
     
 # TODO: hacer el show de las operaciones
 class Add(Function): # f(x) = g(x) + h(x)
     def __init__(self, g, h):
-        super().__init__()
+        super().__init__(False)
         self.g = g
         self.h = h
         
@@ -78,7 +78,7 @@ class Add(Function): # f(x) = g(x) + h(x)
     
 class Sub(Function): # f(x) = g(x) - h(x)
     def __init__(self, g, h):
-        super().__init__()
+        super().__init__(False)
         self.g = g
         self.h = h
         
@@ -89,7 +89,7 @@ class Sub(Function): # f(x) = g(x) - h(x)
     
 class Mult(Function): # f(x) = g(x) * h(x)
     def __init__(self, g, h):
-        super().__init__()
+        super().__init__(False)
         self.g = g
         self.h = h
         
@@ -100,7 +100,7 @@ class Mult(Function): # f(x) = g(x) * h(x)
     
 class Div(Function): # f(x) = g(x) / h(x)
     def __init__(self, g, h):
-        super().__init__()
+        super().__init__(False)
         self.g = g
         self.h = h
         
@@ -111,7 +111,7 @@ class Div(Function): # f(x) = g(x) / h(x)
 
 class Neg(Function):
     def __init__(self, g):
-        super().__init__()
+        super().__init__(False)
         self.g = g
         
     def fun(self, tiempo):
@@ -122,7 +122,7 @@ class Neg(Function):
 #f(x)=log(10,x .9+.1)+1 <-
 class Log(Function):
     def __init__(self, g):
-        super().__init__()
+        super().__init__(False)
         self.g = g
         
     def fun(self, tiempo):
@@ -131,7 +131,7 @@ class Log(Function):
 
 class Exp(Function):
     def __init__(self, g, e):
-        super().__init__()
+        super().__init__(False)
         self.g = g
         self.e = e
         
@@ -196,7 +196,7 @@ class C(Const): # misma que const pero mas corta
         
 class X(Function): # f(t) = valor*t
     def __init__(self, valor=C(1), avoid0 = False, nombre="X", show=False):
-        super().__init__(nombre, show)
+        super().__init__(show, nombre)
         self.valor = valor
         self.avoid0 = avoid0
         if self.show:
@@ -211,13 +211,14 @@ class X(Function): # f(t) = valor*t
     
     def doShow(self,  tk:Tk):
         _tk = super().doShow(tk)
-        
+        if _tk is None:
+            return None  
         self.valor.addNombre(self.nombre)
         self.valor.doShow(_tk)
     
 class XP(Function):
     def __init__(self, valor=C(1), exp=C(1), avoid0 = False, nombre="X^exp", show=False):
-        super().__init__(nombre, show)
+        super().__init__(show, nombre)
         self.exp = exp
         self.avoid0 = avoid0
         self.val = X(valor, False, "X", show)
@@ -232,7 +233,8 @@ class XP(Function):
     
     def doShow(self,  tk:Tk):
         _tk = super().doShow(tk)
-        
+        if _tk is None:
+            return None  
         # if _tk is None:
         #     print("No has introducido un Tk")
         #     return None # para que acabe la recursion
