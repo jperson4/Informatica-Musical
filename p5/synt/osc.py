@@ -202,22 +202,36 @@ class Rep(Osc): # repite una funcion en base a la frecuencia
         self.func.doShow(_tk)
     
 class Sampler(Function):
-    def __init__(self, sample:list, speed_factor:Function, tk:Tk=None, nombre="", show=False):
-        super().__init__(tk, nombre)    
-        self.sample = sample
+    def __init__(self, sample:list, speed_factor:Function, nombre="", show=False):
+        super().__init__(show, nombre)    
+        self.sample = sample # onda
         self.sf = speed_factor
         
     def fun(self, time):
-        # TODO hacer el speed_factor
-        _sample = self.sample
-        frame = time[0]
-        if frame > len(_sample):
-            return np.zeros(CHUNK) # devuelve 0 si se ha pasado del sample
-        if frame + CHUNK > len(_sample):
-            ret = np.concatenate((_sample[frame:], np.zeros(frame + CHUNK - len(_sample))))
-            return ret[:CHUNK] # creo
+        _sf = self.sf.next(time)
+        if isinstance(_sf, list):
+            _sf = _sf[0] # apaño
+        
+        # 1: obtenemos la parte que se va a reproducir
+        parte = self.parteSample(int(time[0]), int(CHUNK*_sf))
+        # 2: reducimos la parte para que quepa en un CHUNK
+        puntos = np.arange(0, int(CHUNK*_sf)+1, step=_sf)[:CHUNK] # de 0 a N cada sf (puntos que queremos obtener)
+        
+        # len puntos = chunk / sf
+        _sample = np.interp(puntos, np.arange(0, int(CHUNK*_sf)+1)[:len(parte)], parte)
+        return _sample[:CHUNK] # en principio no haria falta el [:CHUNK]??
+        
+    def parteSample(self, _frame:int, N:int):
+        '''devuelve de frame a N'''
+        self.frame = _frame + N # hay que corregir el valor de self.frame
+        if _frame > len(self.sample):
+            return np.zeros(CHUNK) 
+        if _frame + N > len(self.sample):
+            ret = np.concatenate((self.sample[_frame:], np.zeros(_frame + N - len(self.sample))))
+            return ret[:N] # creo
         else:
-            return _sample[frame:frame+CHUNK]
+            return self.sample[_frame:_frame+N]
+        
         
     def doShow(self, tk, bg="#808090", side=LEFT):
         _tk =super().doShow(tk, bg, side)
@@ -227,8 +241,35 @@ class Sampler(Function):
         self.sf.doShow(_tk, bg, side)
 
 
-class RSampler(Osc):
-    def __init__(self, freq, sample:list, sfreq, max=C(1), min=C(-1), amp=None, phase=C(0), tk:Tk=None, nombre="", show=False):
-        super().__init__(freq, max, min, amp, phase)
-        self.sample = sample
-        # TODO 
+class RSampler(Sampler): #reproduce una onda (con su frecuencia inicial a una frecuencia dada) en bucle
+    def __init__(self, freq:Function, sample:list, og_freq:Function, amp=C(1), nombre="", show=False):
+        self.freq = freq
+        self.amp = amp
+        super().__init__(sample, self.freq/og_freq, nombre, show)
+        
+    def fun(self, time):
+        _sf = self.sf.next(time)
+        if isinstance(_sf, list):
+            _sf = _sf[0] # apaño
+        
+        # 1: obtenemos la parte que se va a reproducir
+        parte = self.parteSample(int(time[0]), int(CHUNK*_sf))
+        # 2: reducimos la parte para que quepa en un CHUNK
+        puntos = np.arange(0, int(CHUNK*_sf)+1, step=_sf)[:CHUNK] # de 0 a N cada sf (puntos que queremos obtener)
+        
+        # len puntos = chunk / sf
+        _sample = np.interp(puntos, np.arange(0, int(CHUNK*_sf)+1)[:len(parte)], parte)
+        return _sample[:CHUNK] # en principio no haria falta el [:CHUNK]??
+        
+    def parteSample(self, _frame:int, N:int):
+        '''devuelve de frame a _frame + N de forma circular'''
+        self.frame = _frame + N % len(self.sample)# hay que corregir el valor de self.frame
+        if _frame > len(self.sample): # en principio nunca entra aqui
+            return self.parteSample(_frame % len(self.sample), N) # recursion
+        if _frame + N > len(self.sample):
+            prev = self.sample[_frame:] # lo que queda
+            rest = self.sample[:N - len(prev)]
+            ret = np.concatenate((prev, rest))
+            return ret[:N] # creo
+        else:
+            return self.sample[_frame:_frame+N]

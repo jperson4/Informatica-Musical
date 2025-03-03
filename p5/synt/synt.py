@@ -168,6 +168,7 @@ class HarmSynt(PolySynt):
                  amps=[Const(1)], phases=[Const(0)], env=NoEnv(),
                  fmix=tanh ,nombre="harmsynt", show=True):      
         self.muls = muls
+        self.freq = freq
         freqs = []
         for m in muls:
             freqs.append(m * freq)
@@ -175,9 +176,20 @@ class HarmSynt(PolySynt):
         super().__init__(freqs, ondas, amp, amps, phases, [env], fmix, nombre, show)
         
     def setFreq(self, val):
+        self.freq = val
+            
         for m in range(0, len(self.muls)):
-            self.freqs[m] = val * self.muls[m]
+            self.freqs[m] = self.freq * self.muls[m]
             self.synts[m].setFreq(self.freqs[m])
+            
+    def setSliderFreq(self, _val):
+        val = float(_val)
+        if isinstance(self.freq, Const): # no creo que haga falta
+            self.freq.setVal(val)
+            
+        for m in range(0, len(self.muls)):
+            self.freqs[m] = self.freq * self.muls[m]
+            self.synts[m].setFreq(self.freqs[m])        
             
     def doShow(self, tk, bg="#808090", side=LEFT):
         _tk = super().doShow(tk, side=side, showAll=False)
@@ -192,6 +204,11 @@ class HarmSynt(PolySynt):
             self.synts[i].addNombre(i)
             self.synts[i].doShow(_tk, side=BOTTOM)
         
+        if self.freq.show and isinstance(self.freq, Const):
+            slider=Scale(tk, from_=self.freq.fr, to=self.freq.to, resolution=self.freq.step, orient=HORIZONTAL, label=self.freq.nombre, command=self.setSliderFreq)
+            slider.set(self.freq.valor)
+            slider.pack(side=side)
+        return _tk
         # self.amp.addNombre("amp")
         # self.amp.doShow(_tk)
             

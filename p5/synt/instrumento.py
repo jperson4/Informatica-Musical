@@ -46,8 +46,8 @@ class Instrumento(Function):
         #     print('AT')
         #     self.afinacion = notasAT
         
-        freq= freqsMidi[midiNote] * 2 ** self.octava
-        print(freq)
+        freq = freqsMidi[midiNote] * 2 ** self.octava
+        # print(freq)
         synt = deepcopy(self.synt)
         # arreglar esta vaina
         self.env.reset()
@@ -69,14 +69,16 @@ class Instrumento(Function):
         c = event.keysym
         if c in teclas:
             midiNote = teclas.index(c) + 48
-            print(f'noteOn {midiNote}')
+            freq = freqsMidi[midiNote] * 2 ** self.octava
+            print(f'noteOn {midiNote} ({freq}Hz)')
             self.noteOn(midiNote)
 
     def up(self, event):
         c = event.keysym
         if c in teclas:
             midiNote = teclas.index(c) + 48# buscamos indice y hacemos el noteOff
-            print(f'noteOff {midiNote}')
+            freq = freqsMidi[midiNote] * 2 ** self.octava
+            print(f'noteOff {midiNote} ({freq}Hz)')
             self.noteOff(midiNote)
             
     def doShow(self, tk, bg="#808090", side=LEFT):
