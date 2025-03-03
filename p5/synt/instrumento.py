@@ -27,8 +27,6 @@ class Instrumento(Function):
 
         self.octava = 4
         
-        
-    
     def noteOn(self,midiNote):
         # si está el dict de canales apagamos nota actual con envolvente de fadeout
         # y guardamos en tails. El next devolverá este tail y luego comenzará la nota
@@ -50,6 +48,7 @@ class Instrumento(Function):
         # print(freq)
         synt = deepcopy(self.synt)
         # arreglar esta vaina
+        synt.reset()
         self.env.reset()
         env = deepcopy(self.env)
         synt.setFreq(C(freq))
@@ -98,7 +97,8 @@ class Instrumento(Function):
         text.bind('<KeyRelease>', self.up) 
               
         self.synt.doShow(_tk, bg, side)
-        self.env.doShow(_tk, bg, side)  
+        self.env.doShow(_tk, bg, side)
+        return _tk  
             
     # siguiente chunck del generador: sumamos señal de canales y hacemos limpia de silenciados
     def next(self, tiempo=None):

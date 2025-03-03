@@ -169,7 +169,7 @@ class EnvInstrumento:
         if self.state == 'off':
             return 0
 
-    def doShow(self, tk:Tk, bg="#808090", side=LEFT):
+    def doShow(self, tk:Tk, bg="#808090", side=TOP):
         '''crea un frame con su nombre para meter dentro sus elementos de forma recursiva'''
         if self.show is False:
             return None # para que acabe la recursion
