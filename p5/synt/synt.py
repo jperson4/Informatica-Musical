@@ -80,13 +80,13 @@ class PolySynt(Function):
         self.n = n
 
         while len(ondas) < n:
-            ondas.append(copy(ondas[0]))
+            ondas.append(deepcopy(ondas[0]))
         while len(amps) < n:
-            amps.append(copy(amps[0]))
+            amps.append(deepcopy(amps[0]))
         while len(phases) < n:
-            phases.append(copy(phases[0]))
+            phases.append(deepcopy(phases[0]))
         while len(envs) < n:
-            envs.append(copy(envs[0]))
+            envs.append(deepcopy(envs[0]))
         
         self.synts = []
         # usamos una lista de sintetizadores
@@ -171,7 +171,7 @@ class PolySynt(Function):
         
 #TODO: hacerlo nuevo
 class HarmSynt(PolySynt):
-    def __init__(self, freq:Function, muls:Function, ondas, amp=C(1, show=True), 
+    def __init__(self, freq:Function, muls:list[Function], ondas, amp=C(1, show=True), 
                  amps=[Const(1)], phases=[Const(0)], env=NoEnv(),
                  fmix=tanh ,nombre="harmsynt", show=True):      
         self.muls = muls
