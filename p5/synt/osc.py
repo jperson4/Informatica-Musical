@@ -170,7 +170,8 @@ class Square(Osc):
         onda = sg.square((2*np.pi * tiempo) * _freq / SRATE + _phase)
         return onda * _amp + _offset
 
-class Rep(Osc): # repite una funcion en base a la frecuencia
+class Rep(Osc):
+    '''repite una funcion en base a una frecuencia'''
     def __init__(self, freq:Function, func:Function, max=C(1), min=C(-1), amp=None, phase=C(0), nombre="Rep", show=False):
         super().__init__(freq, max, min, amp, phase, nombre, show)
         self.func = func
@@ -202,7 +203,8 @@ class Rep(Osc): # repite una funcion en base a la frecuencia
         self.func.doShow(_tk)
     
 class Sampler(Function):
-    def __init__(self, sample:list, speed_factor:Function, nombre="", show=False):
+    '''reproduce una onda una vez a una velocidad especificada'''
+    def __init__(self, sample:list, speed_factor:Function=C(1), nombre="", show=False):
         super().__init__(show, nombre)    
         self.sample = sample # onda
         self.sf = speed_factor
@@ -241,7 +243,8 @@ class Sampler(Function):
         self.sf.doShow(_tk, bg, side)
 
 
-class RSampler(Sampler): #reproduce una onda (con su frecuencia inicial a una frecuencia dada) en bucle
+class RSampler(Sampler): 
+    '''reproduce una onda (con su frecuencia inicial a una frecuencia dada y en bucle'''
     def __init__(self, freq:Function, sample:list, og_freq:Function, amp=C(1), nombre="", show=False):
         self.freq = freq
         self.amp = amp
