@@ -31,8 +31,9 @@ class Synt(Function):
         # self.amp.addNombre(self.nombre)
 
         # self.phase.addNombre(self.nombre)
-        self.freq.addNombre("freq")
-        self.freq.doShow(_tk)
+        '''la frecuencia es la de la onda'''
+        # self.freq.addNombre("freq") 
+        # self.freq.doShow(_tk)
         # self.phase.addNombre(self.nombre)
         # self.phase.addNombre("phase")
         # self.phase.doShow(_tk)
@@ -48,6 +49,9 @@ class Synt(Function):
         self.amp.addNombre("amp")
         self.amp.doShow(_tk, bg, side)
         return _tk
+    
+    def noteOff(self):
+        self.onda.noteOff()
 
     def setFreq(self, value):
         self.freq = value
@@ -68,7 +72,8 @@ class Synt(Function):
         self.env = env
 
     def reset(self):
-        self.onda.frame = 0
+        self.onda.reset()
+        # self.onda.frame = 0
 
 # TODO añadir un mixer
 class PolySynt(Function):
@@ -144,6 +149,10 @@ class PolySynt(Function):
             self.synts[i].setFreq(freqs[i])
         self.freqs = freqs
         
+    def noteOff(self):
+        for o in self.ondas:
+            o.noteOff()
+        
     def getPhases(self):
         return self.phases
         
@@ -167,7 +176,7 @@ class PolySynt(Function):
     
     def reset(self):
         for o in self.ondas:
-            o.frame = 0
+            o.reset()
         
 #TODO: hacerlo nuevo
 class HarmSynt(PolySynt):

@@ -82,6 +82,12 @@ class Osc(Function):
 
     def setPhase(self, value):
         self.phase = value
+        
+    def noteOff(self):
+        pass
+    
+    def reset(self):
+        self.frame = 0
     
 class Sine(Osc): # f(t) = amp * sin(t * 2pi * freq + phase)
     def __init__(self, freq:Function, max=C(1), min=C(-1), amp=None, phase=C(0), nombre="Sine", show=False):
@@ -207,6 +213,8 @@ class Sampler(Osc):
     def __init__(self, freq:Function, sample:list, og_freq:Function=None, amp=C(1), samedur=False, nombre="Sampler", show=False):
         super().__init__(freq, None, None, amp, C(0), nombre, show)    
         self.sample = sample # onda
+        self.state = 'on'
+        
         if og_freq is None:
             self.og_freq = self.freq
         else:
@@ -245,7 +253,8 @@ class Sampler(Osc):
     def parteSample(self, _frame:int, N:int):
         '''devuelve de frame a N'''
         self.frame = _frame + N # hay que corregir el valor de self.frame
-        if _frame > len(self.sample):
+        if self.state == 'off' or _frame > len(self.sample):
+            self.state = 'off'
             return np.zeros(CHUNK) 
         if _frame + N > len(self.sample):
             ret = np.concatenate((self.sample[_frame:], np.zeros(_frame + N - len(self.sample))))
@@ -267,6 +276,10 @@ class Sampler(Osc):
     def setFreq(self, value):
         super().setFreq(value)
         self.sf = self.freq/self.og_freq
+        
+    def reset(self):
+        super().reset()
+        self.state = 'on'
 
 
 class RSampler(Sampler): 
@@ -287,3 +300,58 @@ class RSampler(Sampler):
         else:
             return self.sample[_frame:_frame+N]
         
+        
+class InstSampler(Osc):
+    '''pone un sample al principio y luego otro durante el sustain y en el release'''
+    def __init__(self, freq:Function, sAtk, fAtk:Function, sSus, fSus:Function=None, sRel=None, fRel=None, amp:Function = C(1), nombre="InstSampler", show=False):
+        super().__init__(freq, None, None, amp, C(0), nombre, show)
+        self.fAtk = fAtk
+        if fSus is None:
+            self.fSus = fAtk
+        else:
+            self.fSus = fSus
+        
+        if fSus is None:
+            self.fRel = self.fSus
+        else:
+            self.fRel = fRel    
+                      
+        self.sAtk = Sampler(freq, sAtk, self.fAtk, amp=C(1, show=True),  show=show)
+        self.sSus = RSampler(freq, sSus, self.fSus, amp=C(1, show=True), show=show)
+        
+        if sRel is None:
+            self.sRel = Sampler(freq, sSus, self.fRel, amp=C(1, show=True), show=show)
+        else:
+            self.sRel = Sampler(freq, sRel, self.fRel, amp=C(1, show=True), show=show)
+        
+        self.rel = False
+        # self.sus_frame = 0
+        
+        
+    def fun(self, tiempo):
+        if self.sAtk.state == 'on':
+            return self.sAtk.next()
+        elif self.rel is False:
+            # sus tiene que usar su propio tiempo 
+            # _tiempo = np.arange(self.sus_frame, self.sus_frame + CHUNK)            
+            # self.sus_frame += CHUNK
+            return self.sSus.next()
+        else: 
+            return self.sRel.next()
+        
+    def noteOff(self):
+        self.rel = True
+        
+    def reset(self):
+        super().reset()
+        self.rel = False
+        self.sAtk.reset()
+        self.sSus.reset()
+        self.sRel.reset()
+        
+    def doShow(self, tk, bg="#808090", side=LEFT):
+        _tk = super().doShow(tk, bg, side)
+        self.sAtk.addNombre('atk sampler')
+        self.sAtk.doShow(_tk, bg, side)
+        self.sSus.addNombre('sus sampler')
+        self.sSus.doShow(_tk, bg, side)

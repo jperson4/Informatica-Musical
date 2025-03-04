@@ -46,9 +46,9 @@ class Instrumento(Function):
         
         freq = freqsMidi[midiNote] * 2 ** self.octava
         # print(freq)
+        self.synt.reset()
         synt = deepcopy(self.synt)
-        # arreglar esta vaina
-        synt.reset()
+        # synt.reset()
         self.env.reset()
         env = deepcopy(self.env)
         synt.setFreq(C(freq))
@@ -59,6 +59,7 @@ class Instrumento(Function):
     def noteOff(self, midiNote):
         if midiNote in self.channels: # está el dict, release
             self.channels[midiNote].getEnv().noteOff()
+            self.synt.noteOff() # para el instsampler
             
     def change_octava(self, val):
         self.octava = int(val) - 2
