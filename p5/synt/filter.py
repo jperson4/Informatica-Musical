@@ -4,11 +4,13 @@ from synt.const import *
 from tkinter import *
 
 from synt.osc import *
+import matplotlib.pyplot as plt
 
 # TODO ver si satura
 class FilterIIR(Function):
     ''' recibe una funcion (generador de ondas) y devuelve su onda filtrada'''
-    def __init__(self,signal:Function,alpha:Function):
+    def __init__(self,signal:Function,alpha:Function, nombre='IIR',show=True):
+        super().__init__(show, nombre)
         self.signal = signal
         self.mem = 0
         self.alpha = alpha
