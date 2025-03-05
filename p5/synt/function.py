@@ -246,6 +246,9 @@ class XP(Function):
         self.exp.addNombre(self.nombre)
         self.exp.doShow(_tk) # añade el exponente al frame
 
+class Noise(Function):
+    def fun(self, tiempo):
+        return np.random.uniform(-1,1,CHUNK)
 
 
 
