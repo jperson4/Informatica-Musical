@@ -13,19 +13,33 @@ class FilterIIR(Function):
         super().__init__(show, nombre)
         self.signal = signal
         self.mem = 0
+        
         self.alpha = alpha
+        if isinstance(alpha, Const):
+            self.alpha_mem = alpha.next()
+        else:
+            self.alpha_mem = 0
         # self.step = step 
         # por defecto inactivo
         self.act = False
 
     def fun(self, tiempo):
         data = self.signal.next(tiempo)
+        _alpha = self.alpha.next(tiempo)
+        
         if self.act:
-            data[0] = self.mem + self.alpha.next(tiempo) * (data[0]-self.mem)
+            data[0] = self.mem + self.alpha_mem * (data[0]-self.mem)
             for i in range(1,CHUNK):
-                data[i] = data[i-1] + self.alpha.next(tiempo) * (data[i]-data[i-1])
+                data[i] = data[i-1] + _alpha[i] * (data[i]-data[i-1])
             self.mem = data[CHUNK-1]
         self.mem = data[-1] # actualizamos memo con ultima muestra
+        
+    
+        if isinstance(self.alpha, Const):
+            self.alpha_mem = _alpha
+        else:
+            self.alpha_mem = float(_alpha[-1])
+        
         return data
 
     def activate(self):
