@@ -59,7 +59,7 @@ class Instrumento(Function):
     def noteOff(self, midiNote):
         if midiNote in self.channels: # está el dict, release
             self.channels[midiNote].getEnv().noteOff()
-            self.synt.noteOff() # para el instsampler
+            self.channels[midiNote].noteOff()
             
     def change_octava(self, val):
         self.octava = int(val) - 2

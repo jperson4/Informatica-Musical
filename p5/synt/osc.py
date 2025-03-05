@@ -320,7 +320,8 @@ class InstSampler(Osc):
         self.sSus = RSampler(freq, sSus, self.fSus, amp=C(1, show=True), show=show)
         
         if sRel is None:
-            self.sRel = Sampler(freq, sSus, self.fRel, amp=C(1, show=True), show=show)
+            # self.sRel = Sampler(freq, sSus, self.fRel, amp=C(1, show=True), show=show)
+            self.sRel = self.sSus # es mejor asi para que no haya cambio
         else:
             self.sRel = Sampler(freq, sRel, self.fRel, amp=C(1, show=True), show=show)
         
@@ -355,3 +356,11 @@ class InstSampler(Osc):
         self.sAtk.doShow(_tk, bg, side)
         self.sSus.addNombre('sus sampler')
         self.sSus.doShow(_tk, bg, side)
+        self.sRel.addNombre('rel sampler')
+        self.sRel.doShow(_tk, bg, side)
+        
+    def setFreq(self, value):
+        super().setFreq(value)
+        self.sAtk.setFreq(value)
+        self.sSus.setFreq(value)
+        self.sRel.setFreq(value)
