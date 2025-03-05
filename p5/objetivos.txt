@@ -14,12 +14,14 @@ Ver como hacemos para que algunos se apilen hacia abajo y otros hacia el lado, (
 
 hacer el doshow de las clases:
     effects
-    envolv
+    envolv <- DONE
     function <- DONE
-    instrumento 
+    instrumento <- DONE
     mixer <- DONE
     osc <- DONE
     otrasFunc
-    synt <- IMPORTANTE
+    synt <- DONE
 
 rehacer el synt para que sea freq, onda, envolvente
+
+hacer filtro iir
