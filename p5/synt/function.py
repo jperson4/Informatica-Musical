@@ -250,6 +250,12 @@ class Noise(Function):
     def fun(self, tiempo):
         return np.random.uniform(-1,1,CHUNK)
 
-
-
+class Reverse(Function): # reverse en un chunk (es lo que necesitamos por ahora)
+    def __init__(self, func:Function, show=False, nombre=""):
+        super().__init__(show, nombre)
+        self.func = func
+        
+    def fun(self, tiempo):
+        onda = self.func.next(tiempo)
+        return onda[::-1]
 

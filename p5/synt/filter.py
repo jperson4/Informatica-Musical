@@ -1,44 +1,45 @@
 
+from copy import deepcopy
 from synt.function import *
 from synt.const import *
 from tkinter import *
+import numpy as np
 
 from synt.osc import *
-import matplotlib.pyplot as plt
 
 # TODO ver si satura
 class FilterIIR(Function):
     ''' recibe una funcion (generador de ondas) y devuelve su onda filtrada'''
-    def __init__(self,signal:Function,alpha:Function, nombre='IIR',show=True):
+    def __init__(self,signal:Function,alpha:Function, act=False, nombre='IIR',show=True):
         super().__init__(show, nombre)
         self.signal = signal
         self.mem = 0
         
         self.alpha = alpha
         if isinstance(alpha, Const):
-            self.alpha_mem = alpha.next()
+            self.alpha_mem = alpha.next(np.arange(0, CHUNK))
         else:
             self.alpha_mem = 0
         # self.step = step 
         # por defecto inactivo
-        self.act = False
+        self.act = act
 
     def fun(self, tiempo):
         data = self.signal.next(tiempo)
-        _alpha = self.alpha.next(tiempo)
+        
+        if isinstance(self.alpha, Const):
+            _alpha = np.full(CHUNK, self.alpha.next(tiempo))
+        else:
+            _alpha = self.alpha.next(tiempo)
         
         if self.act:
             data[0] = self.mem + self.alpha_mem * (data[0]-self.mem)
             for i in range(1,CHUNK):
                 data[i] = data[i-1] + _alpha[i] * (data[i]-data[i-1])
             self.mem = data[CHUNK-1]
+            
         self.mem = data[-1] # actualizamos memo con ultima muestra
-        
-    
-        if isinstance(self.alpha, Const):
-            self.alpha_mem = _alpha
-        else:
-            self.alpha_mem = float(_alpha[-1])
+        self.alpha_mem = float(_alpha[-1])
         
         return data
 
@@ -64,3 +65,54 @@ class FilterIIR(Function):
 
     # def downAlpha(self):
         # self.alpha = min(2.0,max(0.1,self.alpha-self.step))
+
+class LPFilter(FilterIIR):
+    def __init__(self,signal:Function,alpha:Function, act=False ,nombre='IIR',show=True):
+        super().__init__(signal,alpha, nombre='LP',show=True)
+        # _IIR1 = FilterIIR(Reverse(deepcopy(self.signal)), self.alpha, self.act)
+        self.lp_0 = FilterIIR(deepcopy(self.signal), self.alpha, self.act)
+        self.lp = FilterIIR(Reverse(self.lp_0), self.alpha, self.act)
+        
+    def fun(self, tiempo):
+        if self.act:
+            return self.lp_0.next(tiempo)
+        else: 
+            return self.signal.next(tiempo)
+        # aplicamos dos veces para corregir el desplazamiento de fase
+        
+    def activate(self):
+        self.act = True
+        self.lp_0.activate()
+        self.lp.activate()
+
+    def deactivate(self):
+        self.act = False  
+        self.lp_0.deactivate()
+        self.lp.deactivate
+
+class HPFilter(FilterIIR):
+    def __init__(self,signal:Function,alpha:Function, nombre='IIR',show=True):
+        super().__init__(signal,alpha, nombre='LP',show=True)
+        # self.alpha = -alpha
+        self.lp = LPFilter(signal,alpha, self.act)
+    
+    def fun(self, tiempo):
+        
+        if self.act:
+            _sig = self.signal.next(tiempo)
+            _lp = self.lp.next(tiempo)
+            '''suena muy bajo'''
+            return _sig - _lp
+        else: 
+            return self.signal.next(tiempo)
+        
+    def activate(self):
+        self.act = True
+        self.lp.activate()
+
+    def deactivate(self):
+        self.act = False  
+        self.lp.deactivate
+        
+    
+
