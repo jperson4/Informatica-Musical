@@ -8,7 +8,7 @@ import numpy as np
 from synt.osc import *
 
 # TODO ver si satura
-class FilterIIR(Function):
+class FilterIIR_low(Function):
     ''' recibe una funcion (generador de ondas) y devuelve su onda filtrada'''
     def __init__(self,signal:Function,alpha:Function, act=False, nombre='IIR',show=True):
         super().__init__(show, nombre)
@@ -16,8 +16,10 @@ class FilterIIR(Function):
         self.mem = 0
         
         self.alpha = alpha
-        if isinstance(alpha, Const):
-            self.alpha_mem = alpha.next(np.arange(0, CHUNK))
+        _am = alpha.next(np.arange(0, CHUNK))
+        
+        if isinstance(_am, (list, np.ndarray)):
+            self.alpha_mem = _am
         else:
             self.alpha_mem = 0
         # self.step = step 
@@ -27,10 +29,11 @@ class FilterIIR(Function):
     def fun(self, tiempo):
         data = self.signal.next(tiempo)
         
-        if isinstance(self.alpha, Const):
-            _alpha = np.full(CHUNK, self.alpha.next(tiempo))
+        _alf = self.alpha.next(tiempo)
+        if isinstance(_alf, (list, np.ndarray)):
+            _alpha = _alf
         else:
-            _alpha = self.alpha.next(tiempo)
+            _alpha = np.full(CHUNK, _alf)
         
         if self.act:
             data[0] = self.mem + self.alpha_mem * (data[0]-self.mem)
@@ -66,12 +69,12 @@ class FilterIIR(Function):
     # def downAlpha(self):
         # self.alpha = min(2.0,max(0.1,self.alpha-self.step))
 
-class LPFilter(FilterIIR):
+class LPFilter(FilterIIR_low):
     def __init__(self,signal:Function,alpha:Function, act=False ,nombre='IIR',show=True):
         super().__init__(signal,alpha, nombre='LP',show=True)
         # _IIR1 = FilterIIR(Reverse(deepcopy(self.signal)), self.alpha, self.act)
-        self.lp_0 = FilterIIR(deepcopy(self.signal), self.alpha, self.act)
-        self.lp = FilterIIR(Reverse(self.lp_0), self.alpha, self.act)
+        self.lp_0 = FilterIIR_low(deepcopy(self.signal), self.alpha, self.act)
+        self.lp = FilterIIR_low(Reverse(self.lp_0), self.alpha, self.act)
         
     def fun(self, tiempo):
         if self.act:
@@ -90,11 +93,11 @@ class LPFilter(FilterIIR):
         self.lp_0.deactivate()
         self.lp.deactivate
 
-class HPFilter(FilterIIR):
+class HPFilter(FilterIIR_low):
     def __init__(self,signal:Function,alpha:Function, nombre='IIR',show=True):
         super().__init__(signal,alpha, nombre='LP',show=True)
-        # self.alpha = -alpha
-        self.lp = LPFilter(signal,alpha, self.act)
+        self.filt_alpha = C(2) - alpha
+        self.lp = LPFilter(signal,self.filt_alpha, self.act)
     
     def fun(self, tiempo):
         
