@@ -119,6 +119,3 @@ class HPFilter(FilterIIR):
     def deactivate(self):
         self.act = False  
         self.lp.deactivate
-        
-    
-

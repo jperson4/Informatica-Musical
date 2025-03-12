@@ -49,5 +49,3 @@ class Mixer(Function):
             self.oscs[o].addNombre(str(o))
             self.oscs[o].doShow(_tk, bg, side=BOTTOM)
         return _tk
-    
-    

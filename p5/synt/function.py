@@ -258,4 +258,3 @@ class Reverse(Function): # reverse en un chunk (es lo que necesitamos por ahora)
     def fun(self, tiempo):
         onda = self.func.next(tiempo)
         return onda[::-1]
-
