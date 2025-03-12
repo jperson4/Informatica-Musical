@@ -8,7 +8,7 @@ import numpy as np
 from synt.osc import *
 
 # TODO ver si satura
-class FilterIIR_low(Function):
+class FilterIIR(Function):
     ''' recibe una funcion (generador de ondas) y devuelve su onda filtrada'''
     def __init__(self,signal:Function,alpha:Function, act=False, nombre='IIR',show=True):
         super().__init__(show, nombre)
@@ -46,6 +46,9 @@ class FilterIIR_low(Function):
         
         return data
 
+    def toggle(self):
+        self.act = not self.act
+
     def activate(self):
         self.act = True
 
@@ -60,7 +63,8 @@ class FilterIIR_low(Function):
         # TODO hacer un boton para activar/desactivar
         self.alpha.addNombre('alpha')
         self.alpha.doShow(_tk, bg, side)
-        
+        act_button = Button(_tk, text='on/off', command=self.toggle)
+        act_button.pack()
         return _tk
     # no hace falta teniendo el do show
     # def upAlpha(self):
@@ -69,12 +73,12 @@ class FilterIIR_low(Function):
     # def downAlpha(self):
         # self.alpha = min(2.0,max(0.1,self.alpha-self.step))
 
-class LPFilter(FilterIIR_low):
+class LPFilter(FilterIIR):
     def __init__(self,signal:Function,alpha:Function, act=False ,nombre='IIR',show=True):
         super().__init__(signal,alpha, nombre='LP',show=True)
         # _IIR1 = FilterIIR(Reverse(deepcopy(self.signal)), self.alpha, self.act)
-        self.lp_0 = FilterIIR_low(deepcopy(self.signal), self.alpha, self.act)
-        self.lp = FilterIIR_low(Reverse(self.lp_0), self.alpha, self.act)
+        self.lp_0 = FilterIIR(deepcopy(self.signal), self.alpha, self.act)
+        self.lp = FilterIIR(Reverse(self.lp_0), self.alpha, self.act)
         
     def fun(self, tiempo):
         if self.act:
@@ -93,14 +97,13 @@ class LPFilter(FilterIIR_low):
         self.lp_0.deactivate()
         self.lp.deactivate
 
-class HPFilter(FilterIIR_low):
+class HPFilter(FilterIIR):
     def __init__(self,signal:Function,alpha:Function, nombre='IIR',show=True):
         super().__init__(signal,alpha, nombre='LP',show=True)
         self.filt_alpha = C(2) - alpha
         self.lp = LPFilter(signal,self.filt_alpha, self.act)
     
     def fun(self, tiempo):
-        
         if self.act:
             _sig = self.signal.next(tiempo)
             _lp = self.lp.next(tiempo)
