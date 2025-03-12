@@ -1,3 +1,4 @@
+# en desuso
 
 from synt.const import *
 import numpy as np
