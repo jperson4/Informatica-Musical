@@ -41,12 +41,11 @@ class Osc(Function):
             self.amp.addNombre("amp")
             # self.amp.addNombre(self.nombre)
             self.amp.doShow(_tk, bg, side)
-        else:
+        if self.max is not None:
             self.max.addNombre("max")
-            # self.max.addNombre(self.nombre)
-            self.min.addNombre("min")
-            # self.min.addNombre(self.nombre)
             self.max.doShow(_tk, bg, side)
+        if self.min is not None:
+            self.min.addNombre("min")
             self.min.doShow(_tk, bg, side)
         self.phase.addNombre("phase")
         # self.phase.addNombre(self.nombre)

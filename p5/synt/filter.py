@@ -48,6 +48,7 @@ class FilterIIR(Function):
 
     def toggle(self):
         self.act = not self.act
+        print(f"filter {self.nombre}: {'on' if self.act else 'off'}")
 
     def activate(self):
         self.act = True
