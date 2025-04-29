@@ -1,0 +1,15 @@
+TRABAJO:
+    Conectar un sintetizador hecho en Python con un teclado MIDI.
+    
+COSAS QUE PODEMOS HACER:
+    - Usar los knobs del teclado MIDI
+    - Decidir que hace cada knob dinamicamente
+    - Dibujar la onda
+
+LIBRERIAS Y CONSEJOS:
+    pyo - para las ondas
+    mido - para el teclado
+    tkinter - para la interfaz
+
+OTROS:
+    ver como se hacía lo de cargar el env
