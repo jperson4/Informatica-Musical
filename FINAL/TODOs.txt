@@ -3,13 +3,48 @@ TRABAJO:
     
 COSAS QUE PODEMOS HACER:
     - Usar los knobs del teclado MIDI
+    - Acordes y vainas automaticas
     - Decidir que hace cada knob dinamicamente
-    - Dibujar la onda
+    - Dibujar la onda - tanto como entrada como como salida
 
 LIBRERIAS Y CONSEJOS:
     pyo - para las ondas
     mido - para el teclado
     tkinter - para la interfaz
+    WxPython - para la interfaz
 
 OTROS:
     ver como se hacía lo de cargar el env
+        -> python3.11 -m venv "MUS_FINAL"                
+        -> creo que era source source ~/.venvs/MUS_FINAL/bin/activate
+
+DISEÑO:
+    - Funcion main con la interfaz e inicializar las COSAS 
+
+    - Paquete para la parte del synt
+        - Osciladores
+        - Filtros/efectos
+        - Envolventes
+        - LFOs?
+        - Calculos musicales?
+
+    - Paquete para la parte del teclado
+        - Conexión MIDI
+        - Fachada para elegir que hace cada knob por asi decirlo
+        - Conexión con el sintetizador
+
+    - Paquete para la parte de la interfaz
+        - Fachada para mostar que hace cada knob por asi decirlo
+
+
+INATALAR PYO:
+ 8957  git clone https://github.com/belangeo/pyo.git
+ 8958  cd pyo
+ 8959  yay -S qjackctl
+ 8963  yay -S portaudio liblo
+ 8964  python3 -m pip install build
+ 8965  ls
+ 8966  source ~/.venvs/MUS_FINAL/bin/activate
+ 8967  python3 -m pip install build
+ 8968  python3 -m build --config-setting="--build-option=--use-jack" --config-setting="--build-option=--use-double"
+ 8969  python3 -m pip install dist/pyo-1.0.6-cp311-cp311-linux_x86_64.whl
