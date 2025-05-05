@@ -1,0 +1,30 @@
+----- PYO -----
+Server:
+    Envia la señal del out a los altavoces
+
+Objeto oscilador ej Sine
+    al usar la funcion.out(), envia la señal al servidor y este la reproduce
+    al  usar la funcion.play(), la señal se reproduce pero no suena
+
+    Podemos modular objetos osciladores con otros, por ejemplo
+        Sintesis AM
+        modulador = Sine(freq=3, mul=0.5)
+        portadora = Sine(freq=440, mul=modulador)
+
+        si ponemos 
+        f = 5
+        a = Sine(freq=f)
+        wait xx
+        f = 10
+        
+        la frecuencia de a cambiara dinamicamente por lo que podemos usar estas cosas para la interfaz
+        podemos poner sliders y esas vainas
+
+        si usamos Sig(int) podemos 'controlar' cosas dinamicamente
+
+GUI
+    Pyo tiene su propia gui pero no se si es la optima, ya que por lo que he visto, no es muy configurable
+
+SONIDO
+    Aqui creo que si que renta usar el sistema de sonido de pyo
+

@@ -36,6 +36,8 @@ DISEÑO:
     - Paquete para la parte de la interfaz
         - Fachada para mostar que hace cada knob por asi decirlo
 
+    - Ver como conectar las cosas
+    
 
 INATALAR PYO:
  8957  git clone https://github.com/belangeo/pyo.git
