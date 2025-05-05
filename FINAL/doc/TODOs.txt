@@ -50,3 +50,7 @@ INATALAR PYO:
  8967  python3 -m pip install build
  8968  python3 -m build --config-setting="--build-option=--use-jack" --config-setting="--build-option=--use-double"
  8969  python3 -m pip install dist/pyo-1.0.6-cp311-cp311-linux_x86_64.whl
+
+INSTALAR mido
+ 1. pip install mido
+ 2. pip install python-rtmidi
