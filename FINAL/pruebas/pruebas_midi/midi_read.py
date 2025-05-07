@@ -15,3 +15,12 @@ print(f"Listening on: {mpk_port}")
 with mido.open_input(mpk_port) as inport:
     for msg in inport:
         print(msg)
+        print(f"Message type: {msg.type}")
+        if msg.type == 'note_on' or msg.type == 'note_off':
+            note = msg.note
+            velocity = msg.velocity
+            print(f"Note: {note}, Velocity: {velocity}")
+        elif msg.type == 'control_change':
+            control = msg.control
+            value = msg.value
+            print(f"Control Change - Control: {control}, Value: {value}")
