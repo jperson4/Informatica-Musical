@@ -31,6 +31,6 @@ def start_server():
     server.setBufferSize(CHUNK)
     server.setInputDevice(DEVICE_IN) # & = default
     server.setOutputDevice(DEVICE_OUT) # & = default
-    server.setNchnls(1)  # Número de canales de salida aparentemente solo vale 1
+    server.setNchnls(1)  # Número de canales de salida aparentemente solo vale 1    
     server.boot()
     return server

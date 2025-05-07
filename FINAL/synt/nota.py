@@ -10,7 +10,7 @@ class Nota(PyoObject):
         self.env = copy(env) # deberia hacer copy?
         self.osc.setFreq(self.freq)
         self.osc.setMul(amp * self.env) # multiplicamos la envolvente por la amplitud
-        # self.osc.stop() # lo mismo no deberia parar el oscilador base
+        self.osc.stop() # lo mismo no deberia parar el oscilador base
         self._base_objs = self.osc.getBaseObjects()
            
     def play(self):
@@ -27,11 +27,11 @@ class Nota(PyoObject):
         ''' Desactiva el oscilador.'''
         # self.osc.stop() # desactivamos el oscilador
         self.env.stop()
-        return PyoObject.stop(self)
         
     def out(self):
         ''' Envía la señal a la salida de audio.'''
         # self.osc.play() # en verdad mejor que de primeras ni suene y que suene cuando le demos al play
+        self.env.play()
         return PyoObject.out(self)
     
     def getAmp(self):

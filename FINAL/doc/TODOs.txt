@@ -37,13 +37,15 @@ DISEÑO:
         - Fachada para mostar que hace cada knob por asi decirlo
 
     - Ver como conectar las cosas
-    
 
     - Funcionamiento del sonido
         - Nota hace un sonido
         - La amplitud se modela con la envolvente
         - Pasamos por los filtros y efectos
         - Suena
+        + Las notas no pueden estar continuamente mandando señal si no estan sonando,
+            podriamos hacer un bucle que chequea si hay una nota sonando y si no la apaga
+            PERO literalmente un observer seria mejor
 
 INATALAR PYO:
  8957  git clone https://github.com/belangeo/pyo.git
