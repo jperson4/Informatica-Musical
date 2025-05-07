@@ -1,21 +1,32 @@
 from pyo import *
-from synt.nota import Nota
-
+from audio import *
+from synt.synt import *
 class Instrument(PyoObject):
-    def __init__(self, osc, env, amp=1):
+    def __init__(self):
+        super().__init__(self)
         ''' Instrumento que reproduce notas con un oscilador y una envolvente'''
-        PyoObject.__init__(self)
-        self.osc = osc
-        self.env = env
-        self.amp = amp
-        self._base_objs = self.osc.getBaseObjects()
+        # PyoObject.__init__(self)
+        self.synts = [] # lista de synts
+        self.synts.append(Synt(Sine(1), Adsr()))
+        self.mixer = Mixer(1, chnls=1, mul=1) # mixer para mezclar las notas
+        self.mixer.addInput(0, self.synts[0])
+        self.effects = [] # lista de efectos
+        self._base_objs = self.mixer.getBaseObjects()
+        
 
-    def play_note(self, note):
-        ''' Reproduce una nota MIDI'''
-        nota = Nota(440.0 * (2 ** ((note - 69) / 12.0)), Sine(440.0 * (2 ** ((note - 69) / 12.0))), self.env) # creamos una nota que vaya sonando
-        nota.out() # la enviamos a la salida de audio
-        time.sleep(2)
-        nota.note_off() # la desactivamos
+    def note_on(self, note, velocity=1):
+        ''' Envia la nota traducida a hz a un synt'''
+        freq = note_to_Hz(note)
+        for s in self.synts:
+            s.note_on(note, freq, velocity)
+            
+    def note_off(self, note):
+        for s in self.synts:
+            s.note_off(note)
+            
+    def out(self):
+        self.mixer.out()
+        return PyoObject.out(self)
 
     def play_knob(self, knob):
         ''' Reproduce un knob MIDI'''

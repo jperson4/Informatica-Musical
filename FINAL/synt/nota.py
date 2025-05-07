@@ -1,6 +1,7 @@
 from pyo import *
 from copy import copy
 
+@DeprecationWarning # DEPRECATED
 class Nota(PyoObject):
     def __init__(self, freq, osc, env, amp=1):
         PyoObject.__init__(self)
