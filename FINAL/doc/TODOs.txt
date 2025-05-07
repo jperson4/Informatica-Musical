@@ -39,6 +39,12 @@ DISEÑO:
     - Ver como conectar las cosas
     
 
+    - Funcionamiento del sonido
+        - Nota hace un sonido
+        - La amplitud se modela con la envolvente
+        - Pasamos por los filtros y efectos
+        - Suena
+
 INATALAR PYO:
  8957  git clone https://github.com/belangeo/pyo.git
  8958  cd pyo
