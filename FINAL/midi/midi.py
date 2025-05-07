@@ -2,6 +2,7 @@ import mido
 
 class Midi:
     def __init__(self, instrument):
+        self.instrument = instrument
         self.func_notas = {i: self.play_note for i in range(48, 73)}
 
         #Asigna una funcion a cada knob
@@ -19,12 +20,17 @@ class Midi:
         """Reproduce una nota del teclado MIDI"""
         print(f"Playing note: {note}")
         print(f"Velocity: {velocity}")
-        # self.instrument.play(note)
+        self.instrument.play_note(note)
+
+    def stop_note(self, note, velocity):
+        """Detiene una nota del teclado MIDI"""
+        print(f"Stopping note: {note}")
+        print(f"Velocity: {velocity}")
+        self.instrument.stop_note(note)
 
     def play_knob(self, knob, value):
         """Reproduce un knob MIDI"""
         print(f"Playing knob: {knob}")
         print(f"Value: {value}")
-        # self.instrument.play(knob)
-
+        self.instrument.play_knob(knob)
 

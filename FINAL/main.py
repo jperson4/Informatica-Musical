@@ -3,6 +3,7 @@ from pyo import *
 import mido
 from synt.nota import Nota
 from midi.midi import Midi
+from instrument.instrument import Instrument
 
 if __name__ == "__main__":
     # Leer de los puertos MIDI disponibles y enontrar el MPK Mini
@@ -11,7 +12,7 @@ if __name__ == "__main__":
 
     server = start_server()
     server.start()
-    env = Adsr(attack=1, decay=1, sustain=.4, release=2)
+    env = Adsr(attack=1, decay=1, sustain=.4, release=.2)
     # env = Sig(1)
     nota = Nota(440, Sine(440), env) # creamos una nota que vaya sonando
     nota.out() # la enviamos a la salida de audio
@@ -20,14 +21,18 @@ if __name__ == "__main__":
     time.sleep(2)
     nota.note_off() # la desactivamos
     
+    ins = Instrument(Sine(440), env) # creamos un instrumento que vaya sonando
 
     with mido.open_input(mpk_port) as inport:
         for msg in inport:
-            if msg.type == 'note_on' or msg.type == 'note_off':
-                midi = Midi(nota)
+            if msg.type == 'note_on':
+                midi = Midi(ins)
                 midi.play_note(msg.note, msg.velocity)
+            elif msg.type == 'note_off':
+                """ midi = Midi(ins)
+                midi.stop_note(msg.note, msg.velocity) """
             elif msg.type == 'control_change':
-                midi = Midi(nota)
+                midi = Midi(ins)
                 midi.play_knob(msg.control, msg.value)
 
     
