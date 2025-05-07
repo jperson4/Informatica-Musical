@@ -28,3 +28,8 @@ GUI
 SONIDO
     Aqui creo que si que renta usar el sistema de sonido de pyo
 
+TECLAS MIDI
+    Teclas Piano: 48 to 72
+    Teclas Pads: 44 to 51
+    Knobs: 1 to 8
+
