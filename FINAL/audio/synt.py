@@ -12,11 +12,11 @@ class Synt(PyoObject):
         (cuando se apagan, los sacamos del mixer)
     '''
 
-    def __init__(self, osc, env, amp=1):
+    def __init__(self, table, env, amp=1):
         ''' Reproduce notas'''
         super().__init__()
         # self.transpo = Sig(transpo)
-        self.osc = osc
+        self.table = table
         self.env = env
         self.amp = Sig(amp) # CHECK
 
@@ -34,17 +34,16 @@ class Synt(PyoObject):
 
         print(f"note_on {id}")
         _id = id
-        _osc = copy(self.osc)
+        _osc = Osc(self.table, freq=freq, mul=self.amp)
         # _env = self.env.copy()
-        _osc.setFreq(freq) # de forma que puedas dejar el oscilador 
-        _osc.setMul(_osc.mul * self.amp)
+        # _osc.setFreq(freq) # de forma que puedas dejar el oscilador 
+        # _osc.setMul(_osc.mul * self.amp)
         # _env =  pickle.loads(pickle.dumps(self.env))
         _env = self.env.copy()
         # _env = Adsr(**vars(self.env))
         # _env.stop() #? puede CHECK
-        _env.play()
         _osc.play()
-        
+        _env.play()
         TrigFunc(_env["trig"], lambda: self.remove_decaying(_id)) # cuando acabe la envolvente, elimina la nota
         if id in self.playingNotes or id in self.decayingNotes:
             self.mixer.delInput(id)

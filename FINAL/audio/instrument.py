@@ -9,7 +9,7 @@ class Instrument(PyoObject):
         ''' Instrumento que reproduce notas con un oscilador y una envolvente'''
         # PyoObject.__init__(self)
         self.synts = [] # lista de synts
-        self.synts.append(Synt(Sine(1), cAdsr(attack=.5)))
+        self.synts.append(Synt(HarmTable([1, .75]), cAdsr(attack=.5)))
         self.mixer = Mixer(1, chnls=1, mul=1) # mixer para mezclar las notas
         self.mixer.addInput(0, self.synts[0])
         self.mixer.setAmp(0, 0, 1)
