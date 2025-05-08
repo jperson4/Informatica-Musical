@@ -37,8 +37,6 @@ if __name__ == "__main__":
     midi_thread = threading.Thread(target=midi_listener, daemon=True)
     midi_thread.start()
     
-
-    
     # nota.play() # la activamos
     # pat2 = Pattern(nota.note_off, time=.5).stop()
     server.gui(locals())

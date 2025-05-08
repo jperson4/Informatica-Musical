@@ -10,6 +10,7 @@ class Instrument(PyoObject):
         self.synts.append(Synt(Sine(1), Adsr()))
         self.mixer = Mixer(1, chnls=1, mul=1) # mixer para mezclar las notas
         self.mixer.addInput(0, self.synts[0])
+        self.mixer.setAmp(0, 0, 1)
         self.effects = [] # lista de efectos
         self._base_objs = self.mixer.getBaseObjects()
         
@@ -27,6 +28,12 @@ class Instrument(PyoObject):
     def out(self):
         self.mixer.out()
         return PyoObject.out(self)
+    
+    def play(self):
+        return PyoObject.play(self)
+    
+    def stop(self):
+        return PyoObject.play(self)
 
     def play_knob(self, knob):
         ''' Reproduce un knob MIDI'''

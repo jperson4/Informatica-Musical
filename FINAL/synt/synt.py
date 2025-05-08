@@ -29,23 +29,35 @@ class Synt(PyoObject):
     def note_on(self, id, freq, velocity=1):
         ''' Crea una copia del oscilador y las pone a sonar añadiendolas al mixer'''
         # freq = idToFreq[id] * self.transpo
+
+        print(f"note_on {id}")
         _id = id
         _osc = copy(self.osc)
         _env = copy(self.env)
         _osc.setFreq(freq) # de forma que puedas dejar el oscilador 
-        _osc.setMul(_osc.mul * velocity * self.amp)
+        _osc.setMul(_osc.mul * self.amp)
+        # _env.stop() #? puede CHECK
+        _env.play()
+        _osc.play()
+        
         TrigFunc(_env["trig"], lambda: self.remove_decaying(_id)) # cuando acabe la envolvente, elimina la nota
+        if id in self.playingNotes or id in self.decayingNotes:
+            self.mixer.delInput(id)
         self.playingNotes[_id] = (_osc, _env)
-        self.mixer.addInput(_id, _osc)
+        self.mixer.addInput(_id, _osc * _env)
+        self.mixer.setAmp(_id, 0, 1)
+
         
     def note_off(self, id):
         ''' Saca la nota de playing u la añade a decaying, activa el decay de la envolvente'''
         if id in self.playingNotes:
+            print(f"note_off {id}")
             self.decayingNotes[id] = self.playingNotes[id]
             self.decayingNotes[id][1].stop() # activa el decay de la envolvente
             del self.playingNotes[id]
             
     def remove_decaying(self, id):
+        print(f"nota {id} eliminada")
         ''' Elimina las notas que ya han terminado de decaer y ya no estan sonando'''
         self.decayingNotes[id][0].stop() # para la nota del todo
         self.mixer.delInput(id)
@@ -54,7 +66,16 @@ class Synt(PyoObject):
     def out(self):
         "Sends the synth's signal to the audio output and return the object itself."
         # self.notch.out()
+        # self.mixer.out()
         return PyoObject.out(self)
+    
+    def play(self):
+        return PyoObject.play(self)
+    
+    def stop(self):
+        for n in self.playingNotes:
+            n[1].stop()
+        return PyoObject.play(self)
 
     def sig(self): # puede que no sea necesario
         "Returns the synth's signal for future processing."
