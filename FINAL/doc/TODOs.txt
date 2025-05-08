@@ -1,6 +1,15 @@
 TRABAJO:
     Conectar un sintetizador hecho en Python con un teclado MIDI.
-    
+
+TODOS:
+    - arreglar lo de que no hay que darle dos veces a stop
+    - ver como agregar ondas dinamicamente?
+    - ver como agregar efectos dinamicamente
+    - ver como cambiar lo que hacen los knobs dinamicamente
+    - manejar Envolventes dinamicamente?
+    - ver si se puedde controlar la interfaz de pyo decentemente
+    - escoger el puerto 
+
 COSAS QUE PODEMOS HACER:
     - Usar los knobs del teclado MIDI
     - Acordes y vainas automaticas
@@ -62,3 +71,4 @@ INATALAR PYO:
 INSTALAR mido
  1. pip install mido
  2. pip install python-rtmidi
+
