@@ -1,13 +1,15 @@
 from pyo import *
-from FINAL.tools import *
-from FINAL.audio.synt import *
+from tools import *
+from audio.synt import *
+from audio.env import *
+
 class Instrument(PyoObject):
     def __init__(self):
         super().__init__(self)
         ''' Instrumento que reproduce notas con un oscilador y una envolvente'''
         # PyoObject.__init__(self)
         self.synts = [] # lista de synts
-        self.synts.append(Synt(Sine(1), Adsr(attack=.5)))
+        self.synts.append(Synt(Sine(1), cAdsr(attack=.5)))
         self.mixer = Mixer(1, chnls=1, mul=1) # mixer para mezclar las notas
         self.mixer.addInput(0, self.synts[0])
         self.mixer.setAmp(0, 0, 1)

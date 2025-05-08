@@ -1,5 +1,7 @@
 from pyo import *
 from copy import copy
+from copy import deepcopy
+import pickle
 
 class Synt(PyoObject):
     ''' Recibe un oscilador y una envolvente
@@ -33,9 +35,12 @@ class Synt(PyoObject):
         print(f"note_on {id}")
         _id = id
         _osc = copy(self.osc)
-        _env = copy(self.env)
+        # _env = self.env.copy()
         _osc.setFreq(freq) # de forma que puedas dejar el oscilador 
         _osc.setMul(_osc.mul * self.amp)
+        # _env =  pickle.loads(pickle.dumps(self.env))
+        _env = self.env.copy()
+        # _env = Adsr(**vars(self.env))
         # _env.stop() #? puede CHECK
         _env.play()
         _osc.play()

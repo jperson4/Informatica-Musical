@@ -1,9 +1,8 @@
-from FINAL.tools import *
+from tools import *
 from pyo import *
 import mido
-from synt.nota import Nota
 from midi.midi import Midi
-from FINAL.audio.instrument import Instrument
+from audio.instrument import Instrument
 import threading
 
 # hilo listener del midi
