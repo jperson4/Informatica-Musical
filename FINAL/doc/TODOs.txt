@@ -2,13 +2,15 @@ TRABAJO:
     Conectar un sintetizador hecho en Python con un teclado MIDI.
 
 TODOS:
-    - arreglar lo de que no hay que darle dos veces a stop
     - ver como agregar ondas dinamicamente?
     - ver como agregar efectos dinamicamente
     - ver como cambiar lo que hacen los knobs dinamicamente
     - manejar Envolventes dinamicamente?
     - ver si se puedde controlar la interfaz de pyo decentemente
-    - escoger el puerto 
+    - escoger el puerto de audio automaticamente (o segun estemos en el ordenador de ian o en el mio)
+    - mirar lo de la suma de los osciladores del synt ya que suena muy alto cuando tocas varias notas y muy bajo cuando solo tocas una
+    - ver como funciona lo del velocity
+    
 
 COSAS QUE PODEMOS HACER:
     - Usar los knobs del teclado MIDI
