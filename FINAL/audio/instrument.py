@@ -1,6 +1,6 @@
 from pyo import *
-from audio import *
-from synt.synt import *
+from FINAL.tools import *
+from FINAL.audio.synt import *
 class Instrument(PyoObject):
     def __init__(self):
         super().__init__(self)
