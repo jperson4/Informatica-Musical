@@ -52,7 +52,7 @@ class Synt(PyoObject):
         self.mixer.setAmp(_id, 0, 1)
 
         
-    def note_off(self, id):
+    def note_off(2, id):
         ''' Saca la nota de playing u la añade a decaying, activa el decay de la envolvente'''
         if id in self.playingNotes:
             print(f"note_off {id}")
