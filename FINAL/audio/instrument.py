@@ -8,7 +8,7 @@ from controller.controllable import Controllable
 
 class Instrument(PyoObject, Controllable):
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
         ''' Instrumento que reproduce notas con un oscilador y una envolvente'''
         # PyoObject.__init__(self)
         self.synts = [] # lista de synts
@@ -16,7 +16,8 @@ class Instrument(PyoObject, Controllable):
         self.mixer = Mixer(1, chnls=1, mul=1) # mixer para mezclar las notas
         self.mixer.addInput(0, self.synts[0])
         self.mixer.setAmp(0, 0, 1)
-        self.effects = EffectsChain([STRev(Sine())], self.mixer)
+        self.mixer.play()
+        self.effects = EffectsChain([STRev(self.mixer)], self.mixer)
         self._base_objs = self.effects.getBaseObjects()
         
 

@@ -33,6 +33,7 @@ def start_server():
     server.setOutputDevice(DEVICE_OUT) # & = default
     server.setNchnls(1)  # Número de canales de salida aparentemente solo vale 1    
     server.boot()
+    server.start()
     return server
 
 def note_to_Hz(note, mode=0):

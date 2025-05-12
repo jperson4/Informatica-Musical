@@ -1,12 +1,18 @@
 from pyo import *
 
 class EffectsChain(PyoObject):
-    def __init__(self, list, input):
+    def __init__(self, list, input:PyoObject):
+        # super().__init__()
+        # self.output = input
+        
+        
         super().__init__()
         self.list = list
         self.input = input
+        self.input.stop()
         self.output = None
         self.setup()
+        self.input.play()
         self._base_objs = self.output.getBaseObjects()
         
     def setup(self):
@@ -16,10 +22,10 @@ class EffectsChain(PyoObject):
             return
         
         aux = self.list[0]
-        aux.setInput(self.input)
+        aux.setInput(self.input, 0)
         for i in range(1, len(self.list)):
             f = self.list[i]
-            f.setInput(aux)
+            f.setInput(aux, 0)
             aux = f
         self.output = aux
 
