@@ -17,7 +17,7 @@ class Instrument(PyoObject, Controllable):
         self.mixer.addInput(0, self.synts[0])
         self.mixer.setAmp(0, 0, 1)
         self.mixer.play()
-        self.effects = EffectsChain([STRev(self.mixer)], self.mixer)
+        self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
         self._base_objs = self.effects.getBaseObjects()
         
 
@@ -32,20 +32,20 @@ class Instrument(PyoObject, Controllable):
             s.note_off(note)
             
     def out(self):
-        return self.effects.out(self)
+        return self.effects.out()
     
     def play(self):
         # for s in self.synts:
         #     s.play()
-        return self.effects.play(self)
+        return self.effects.play()
     
     def stop(self):
         # for s in self.synts:
         #     s.stop()
-        return self.effects.stop(self)
+        return self.effects.stop()
     
     def sig(self):
-        return self.effects.sig(self)
+        return self.effects.sig()
 
     def use_knob(self, value, action):
         ''' Reproduce un knob MIDI'''
