@@ -2,8 +2,11 @@ from pyo import *
 from tools import *
 from audio.synt import *
 from audio.env import *
+from audio.effectschain import *
+from audio.effect import *
+from controller.controllable import Controllable
 
-class Instrument(PyoObject):
+class Instrument(PyoObject, Controllable):
     def __init__(self):
         super().__init__(self)
         ''' Instrumento que reproduce notas con un oscilador y una envolvente'''
@@ -13,8 +16,8 @@ class Instrument(PyoObject):
         self.mixer = Mixer(1, chnls=1, mul=1) # mixer para mezclar las notas
         self.mixer.addInput(0, self.synts[0])
         self.mixer.setAmp(0, 0, 1)
-        self.effects = [] # lista de efectos
-        self._base_objs = self.mixer.getBaseObjects()
+        self.effects = EffectsChain([STRev(Sine())], self.mixer)
+        self._base_objs = self.effects.getBaseObjects()
         
 
     def note_on(self, note, velocity=1):
@@ -28,16 +31,27 @@ class Instrument(PyoObject):
             s.note_off(note)
             
     def out(self):
-        self.mixer.out()
-        return PyoObject.out(self)
+        return self.effects.out(self)
     
     def play(self):
-        return PyoObject.play(self)
+        # for s in self.synts:
+        #     s.play()
+        return self.effects.play(self)
     
     def stop(self):
-        return PyoObject.play(self)
+        # for s in self.synts:
+        #     s.stop()
+        return self.effects.stop(self)
+    
+    def sig(self):
+        return self.effects.sig(self)
 
-    def play_knob(self, knob):
+    def use_knob(self, value, action):
         ''' Reproduce un knob MIDI'''
-        print(f"Playing knob: {knob}")
-        # Aqui se puede añadir la funcionalidad de los knobs
+        # sube o baja el volumen de cada synt
+        super().use_knob(value, action)
+        if action == "amp":
+            self.setMul(value)
+        
+    def report_actions(self):
+        return ["amp"]

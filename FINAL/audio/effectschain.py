@@ -1,0 +1,46 @@
+from pyo import *
+
+class EffectsChain(PyoObject):
+    def __init__(self, list, input):
+        super().__init__()
+        self.list = list
+        self.input = input
+        self.output = None
+        self.setup()
+        self._base_objs = self.output.getBaseObjects()
+        
+    def setup(self):
+        
+        if len(self.list) == 0:
+            self.output = self.input
+            return
+        
+        aux = self.list[0]
+        aux.setInput(self.input)
+        for i in range(1, len(self.list)):
+            f = self.list[i]
+            f.setInput(aux)
+            aux = f
+        self.output = aux
+
+    def getOutput(self):
+        return self.output
+
+    def out(self):
+        # for s in self.list:
+        #     s.play()
+        return self.output.out(self)
+    
+    def play(self):
+        for s in self.list:
+            s.play()
+        return self.output.play(self)
+    
+    def stop(self):
+        for s in self.list:
+            s.stop()
+        return self.output.stop(self)
+    
+    def sig(self):
+        return self.output.sig(self)
+        

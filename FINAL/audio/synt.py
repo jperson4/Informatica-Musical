@@ -1,9 +1,10 @@
 from pyo import *
 from copy import copy
 from copy import deepcopy
+from controller.controllable import Controllable
 import pickle
 
-class Synt(PyoObject):
+class Synt(PyoObject, Controllable):
     ''' Recibe un oscilador y una envolvente
         en note_on crea una copia del oscilador y la hace sonar
         en note_off dice a la envolvente que empiece a decaer, cuando decaiga, se eliminara la copia del oscilador aunque
@@ -52,7 +53,7 @@ class Synt(PyoObject):
         self.mixer.setAmp(_id, 0, 1)
 
         
-    def note_off(2, id):
+    def note_off(self, id):
         ''' Saca la nota de playing u la añade a decaying, activa el decay de la envolvente'''
         if id in self.playingNotes:
             print(f"note_off {id}")
@@ -84,3 +85,19 @@ class Synt(PyoObject):
     def sig(self): # puede que no sea necesario
         "Returns the synth's signal for future processing."
         return self.notch
+    
+    def use_knob(self, value, action):
+        ''' Reproduce un knob MIDI'''
+        # sube o baja el volumen de cada synt
+        super().use_knob(value, action)
+        if action == "amp":
+            self.setMul(value)
+            
+    def report_actions(self):
+        return ["amp"]
+    
+    def set_table(self, table):
+        self.table = table
+    
+    def get_table(self):
+        return self.table
