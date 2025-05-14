@@ -4,8 +4,8 @@ from pyo import *
 CHUNK = 1024  # Número de muestras por buffer
 SRATE = 44100  # Frecuencia de muestreo
 AMP = 0.1 # Amplitud general del sonido
-DEVICE_OUT = 6  # Dispositivo de audio a utilizar (puede cambiar según el sistema)
-DEVICE_IN = 6  # Dispositivo de audio a utilizar (puede cambiar según el sistema)
+DEVICE_OUT = 20  # Dispositivo de audio a utilizar (puede cambiar según el sistema)
+DEVICE_IN = 20 # Dispositivo de audio a utilizar (puede cambiar según el sistema)
 
 # input = None  # Variable para almacenar el objeto de entrada de audio
 
