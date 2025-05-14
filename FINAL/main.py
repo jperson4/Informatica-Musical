@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     server = start_server()
     env = Adsr()
-    ins = Instrument() # creamos un instrumento que vaya sonando
+    ins = Instrument(env) # creamos un instrumento que vaya sonando
     ins.out()
 
     midi_thread = threading.Thread(target=midi_listener, daemon=True)

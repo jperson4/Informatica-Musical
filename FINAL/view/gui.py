@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 class SynthGUI(tk.Tk):
-    def __init__(self):
+    def __init__(self, ins):
         super().__init__()
 
         self.title("Synth Control Panel")
@@ -19,9 +19,9 @@ class SynthGUI(tk.Tk):
     def create_widgets(self):
         # Comboboxes for knob assignments
         self.knob_selectors = []
-        for i in range(8):
+        for i in range(4):
             combo = ttk.Combobox(self, values=self.knob_options, state="readonly")
-            combo.set(f"Knob {i+1}")
+            combo.set(f"{self.knob_options[3 + i]}")
             combo.grid(row=i//4, column=i%4, padx=10, pady=10)
             self.knob_selectors.append(combo)
 
@@ -44,27 +44,32 @@ class SynthGUI(tk.Tk):
         self.mod_wave_selector.set("Sine")
         self.mod_wave_selector.grid(row=3, column=3, sticky="w")
 
-        # Button to add more waveforms
+        # Button to add more waveforms (limited to one extra)
+        self.additional_waveform_selectors = []
         self.add_waveform_button = ttk.Button(
             self, text="Add Waveform", command=self.add_waveform
         )
         self.add_waveform_button.grid(row=4, column=0, pady=10, sticky="w")
 
-        # List to store dynamically added waveform comboboxes
-        self.additional_waveform_selectors = []
+    def add_waveform(self):
+        if len(self.additional_waveform_selectors) < 1:
+            new_waveform_selector = ttk.Combobox(self, values=self.waveforms, state="readonly")
+            new_waveform_selector.set("Sine")
+            new_waveform_selector.grid(row=5, column=0, pady=10, sticky="w")
+            self.additional_waveform_selectors.append(new_waveform_selector)
+        else:
+            print("Only one additional waveform can be added.")
+
+    def on_waveform_change(self, event):
+        waveform = self.waveform_selector.get()
+        self.ins.set_waveform(waveform)  # Method in Instrument
+
 
     def toggle_amp_mod_selector(self):
         if self.amp_mod_var.get():
             self.mod_wave_selector.configure(state="readonly")
         else:
             self.mod_wave_selector.configure(state="disabled")
-
-    def add_waveform(self):
-        # Add a new combobox for waveform selection
-        new_waveform_selector = ttk.Combobox(self, values=self.waveforms, state="readonly")
-        new_waveform_selector.set("Sine")
-        new_waveform_selector.grid(row=5 + len(self.additional_waveform_selectors), column=0, pady=10, sticky="w")
-        self.additional_waveform_selectors.append(new_waveform_selector)
 
     def get_values(self):
         # Retrieve knob assignments

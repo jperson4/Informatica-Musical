@@ -4,6 +4,7 @@ from audio.synt import *
 from audio.env import *
 from audio.effectschain import *
 from audio.effect import *
+from view.gui import *
 from controller.controllable import Controllable
 
 class Instrument(PyoObject, Controllable):
@@ -15,6 +16,9 @@ class Instrument(PyoObject, Controllable):
         self.mixer = Mixer(1, chnls=1, mul=1)  # mixer para mezclar las notas
         self.mixer.addInput(0, self.synts[0])
         self.mixer.setAmp(0, 0, 1)
+
+        gui = SynthGUI(self)
+        gui.show_gui()
         
         # Create an ADSR envelope
         self.adsr = Adsr(attack=0.01, decay=0.2, sustain=0.7, release=0.5, mul=1)
@@ -22,8 +26,8 @@ class Instrument(PyoObject, Controllable):
         self.mixer.setMul(self.adsr)  # Apply the ADSR envelope to the mixer
         self.mixer.play()
         self.env.play()
-        # self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
-        self._base_objs = self.effects.getBaseObjects()
+        #self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
+        #self._base_objs = self.effects.getBaseObjects()
 
     def note_on(self, note, velocity=1):
         ''' Envia la nota traducida a hz a un synt'''
@@ -38,7 +42,7 @@ class Instrument(PyoObject, Controllable):
         self.adsr.stop()  # Release the ADSR envelope
             
     def out(self):
-        return self.effects.out()
+        return self.mixer.out()
     
     def play(self):
         return self.effects.play()
@@ -48,6 +52,13 @@ class Instrument(PyoObject, Controllable):
     
     def sig(self):
         return self.effects.sig()
+    
+    def set_waveform(self, waveform, index=0):
+        ''' Cambia la forma de onda del synt'''
+        if index < len(self.synts):
+            self.synts[index].table.setWaveform(waveform)
+        else:
+            print(f"Error: Index {index} out of range for synts list.")
 
     def use_knob(self, value, action):
         ''' Reproduce un knob MIDI'''
