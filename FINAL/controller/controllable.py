@@ -1,7 +1,8 @@
 
 class Controllable:
     ''' Interfaz para los objetos que son controlables por un knob'''
-    def __init__(self):
+    def __init__(self, nombre=""):
+        self.nombre = nombre
         pass
     
     def use_knob(self, value, action):
@@ -15,3 +16,12 @@ class Controllable:
     def report_controllables(self):
         '''Devuelve la lista de todos sus objetos que implementan esta interfaz'''
         return self
+    
+    def get_name(self):
+        '''Devuelve el nombre del objeto'''
+        return self.nombre
+    
+    def set_name(self, name):
+        '''Cambia el nombre del objeto'''
+        self.nombre = name
+        return self.nombre

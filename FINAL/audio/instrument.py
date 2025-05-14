@@ -8,8 +8,8 @@ from view.gui import *
 from controller.controllable import Controllable
 
 class Instrument(PyoObject, Controllable):
-    def __init__(self, env):
-        super().__init__()
+    def __init__(self, env, name="ins"):
+        Controllable.__init__(self, name)
         ''' Instrumento que reproduce notas con un oscilador y una envolvente'''
         self.synts = []  # lista de synts
         self.synts.append(Synt(HarmTable([1, .75])))
@@ -17,13 +17,13 @@ class Instrument(PyoObject, Controllable):
         self.mixer.addInput(0, self.synts[0])
         self.mixer.setAmp(0, 0, 1)
 
-        gui = SynthGUI(self)
-        gui.show_gui()
-        
+        """  gui = SynthGUI(self)
+        gui.show_gui() """
+    
         # Create an ADSR envelope
-        self.adsr = Adsr(attack=0.01, decay=0.2, sustain=0.7, release=0.5, mul=1)
+        #self.adsr = cAdsr(attack=0.01, decay=0.2, sustain=0.7, release=0.5, mul=1)
         self.env = env
-        self.mixer.setMul(self.adsr)  # Apply the ADSR envelope to the mixer
+        self.mixer.setMul(self.env)  # Apply the ADSR envelope to the mixer
         self.mixer.play()
         self.env.play()
         #self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
@@ -34,12 +34,12 @@ class Instrument(PyoObject, Controllable):
         freq = note_to_Hz(note)
         for s in self.synts:
             s.note_on(note, freq, velocity)
-        self.adsr.play()  # Trigger the ADSR envelope
+        self.env.play()  # Trigger the ADSR envelope
             
     def note_off(self, note):
         for s in self.synts:
             s.note_off(note)
-        self.adsr.stop()  # Release the ADSR envelope
+        self.env.stop()  # Release the ADSR envelope
             
     def out(self):
         return self.mixer.out()

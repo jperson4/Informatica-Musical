@@ -32,5 +32,5 @@ class Midi:
         """Reproduce un knob MIDI"""
         print(f"Playing knob: {knob}")
         print(f"Value: {value}")
-        self.controller.play_knob(knob)
+        self.controller.play_knob(knob, value)
 

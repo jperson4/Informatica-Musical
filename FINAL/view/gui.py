@@ -30,6 +30,7 @@ class SynthGUI(tk.Tk):
         self.waveform_selector = ttk.Combobox(self, values=self.waveforms, state="readonly")
         self.waveform_selector.set("Sine")
         self.waveform_selector.grid(row=2, column=1, pady=10, sticky="w")
+        
 
         # Amplitude modulation options
         self.amp_mod_var = tk.BooleanVar()
