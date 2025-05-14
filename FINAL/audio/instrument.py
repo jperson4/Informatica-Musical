@@ -50,7 +50,7 @@ class Instrument(PyoObject, Controllable):
     def use_knob(self, value, action):
         ''' Reproduce un knob MIDI'''
         # sube o baja el volumen de cada synt
-        super().use_knob(value, action)
+        # super().use_knob(value, action)
         if action == "amp":
             self.setMul(value)
         
