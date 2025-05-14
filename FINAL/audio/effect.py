@@ -22,3 +22,5 @@ class Reverb(STRev, Controllable):
 
     def report_actions(self):
         return ["impos", "revtime", "cutoff", "bal", "roomsize", "firstrefgain"]
+    
+    # no necesita la funcion report_controllables xq solo tiene uno

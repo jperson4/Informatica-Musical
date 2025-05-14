@@ -56,3 +56,12 @@ class Instrument(PyoObject, Controllable):
         
     def report_actions(self):
         return ["amp"]
+    
+    def report_controllables(self):
+        ret = super().report_controllables()
+        for s in self.synts:
+            ret += s.report_controllables() 
+        # no se si sera necesario quitar los duplicados 
+        # TODO habria que hacer una funcion report_controllables en el effects chain
+        return ret 
+        

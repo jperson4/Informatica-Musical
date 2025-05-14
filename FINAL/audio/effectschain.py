@@ -4,8 +4,6 @@ class EffectsChain(PyoObject):
     def __init__(self, list, input:PyoObject):
         super().__init__()
         self.output = input
-        
-        
         # super().__init__()
         # self.list = list
         # self.input = input

@@ -92,9 +92,16 @@ class Synt(PyoObject, Controllable):
         super().use_knob(value, action)
         if action == "amp":
             self.setMul(value)
+        # TODO ver si encontramos una manera de meter ondas dentro de otras (y poder controlarlo)
             
     def report_actions(self):
         return ["amp"]
+    
+    def report_controllables(self):
+        ret = super().report_controllables()
+        ret += [self.env]
+        
+        return ret 
     
     def set_table(self, table):
         self.table = table
