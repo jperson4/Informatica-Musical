@@ -10,9 +10,9 @@ class SynthGUI(tk.Tk):
         self.configure(padx=10, pady=10)
 
         self.knob_options = [
-            "None", "Frequency", "Amplitude"
+            "None", "Frequency", "Amplitude", "Attack", "Decay", "Sustain", "Release"
         ]
-        self.waveforms = ["Sine", "Square", "Triangle", "Sawtooth", "Noise"]
+        self.waveforms = ["Sine", "Square", "Triangle", "Sawtooth"]
 
         self.create_widgets()
 
@@ -31,15 +31,6 @@ class SynthGUI(tk.Tk):
         self.waveform_selector.set("Sine")
         self.waveform_selector.grid(row=2, column=1, pady=10, sticky="w")
 
-         # Button to add more waveforms
-        self.add_waveform_button = ttk.Button(
-            self, text="Add Waveform", command=self.add_waveform
-        )
-        self.add_waveform_button.grid(row=4, column=0, pady=10, sticky="w")
-
-        # List to store dynamically added waveform comboboxes
-        self.additional_waveform_selectors = []
-
         # Amplitude modulation options
         self.amp_mod_var = tk.BooleanVar()
         self.amp_mod_check = ttk.Checkbutton(
@@ -53,6 +44,14 @@ class SynthGUI(tk.Tk):
         self.mod_wave_selector.set("Sine")
         self.mod_wave_selector.grid(row=3, column=3, sticky="w")
 
+        # Button to add more waveforms
+        self.add_waveform_button = ttk.Button(
+            self, text="Add Waveform", command=self.add_waveform
+        )
+        self.add_waveform_button.grid(row=4, column=0, pady=10, sticky="w")
+
+        # List to store dynamically added waveform comboboxes
+        self.additional_waveform_selectors = []
 
     def toggle_amp_mod_selector(self):
         if self.amp_mod_var.get():
@@ -89,6 +88,5 @@ class SynthGUI(tk.Tk):
             "additional_waveforms": additional_waveforms
         }
 
-if __name__ == "__main__":
-    app = SynthGUI()
-    app.mainloop()
+    def show_gui(self):
+        self.mainloop()

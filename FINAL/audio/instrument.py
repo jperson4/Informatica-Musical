@@ -7,41 +7,43 @@ from audio.effect import *
 from controller.controllable import Controllable
 
 class Instrument(PyoObject, Controllable):
-    def __init__(self):
+    def __init__(self, env):
         super().__init__()
         ''' Instrumento que reproduce notas con un oscilador y una envolvente'''
-        # PyoObject.__init__(self)
-        self.synts = [] # lista de synts
-        self.synts.append(Synt(HarmTable([1, .75]), cAdsr(attack=.5)))
-        self.mixer = Mixer(1, chnls=1, mul=1) # mixer para mezclar las notas
+        self.synts = []  # lista de synts
+        self.synts.append(Synt(HarmTable([1, .75])))
+        self.mixer = Mixer(1, chnls=1, mul=1)  # mixer para mezclar las notas
         self.mixer.addInput(0, self.synts[0])
         self.mixer.setAmp(0, 0, 1)
-        self.mixer.play()
-        self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
-        self._base_objs = self.effects.getBaseObjects()
         
+        # Create an ADSR envelope
+        self.adsr = Adsr(attack=0.01, decay=0.2, sustain=0.7, release=0.5, mul=1)
+        self.env = env
+        self.mixer.setMul(self.adsr)  # Apply the ADSR envelope to the mixer
+        self.mixer.play()
+        self.env.play()
+        # self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
+        self._base_objs = self.effects.getBaseObjects()
 
     def note_on(self, note, velocity=1):
         ''' Envia la nota traducida a hz a un synt'''
         freq = note_to_Hz(note)
         for s in self.synts:
             s.note_on(note, freq, velocity)
+        self.adsr.play()  # Trigger the ADSR envelope
             
     def note_off(self, note):
         for s in self.synts:
             s.note_off(note)
+        self.adsr.stop()  # Release the ADSR envelope
             
     def out(self):
         return self.effects.out()
     
     def play(self):
-        # for s in self.synts:
-        #     s.play()
         return self.effects.play()
     
     def stop(self):
-        # for s in self.synts:
-        #     s.stop()
         return self.effects.stop()
     
     def sig(self):
@@ -49,8 +51,6 @@ class Instrument(PyoObject, Controllable):
 
     def use_knob(self, value, action):
         ''' Reproduce un knob MIDI'''
-        # sube o baja el volumen de cada synt
-        # super().use_knob(value, action)
         if action == "amp":
             self.setMul(value)
         
@@ -61,7 +61,4 @@ class Instrument(PyoObject, Controllable):
         ret = super().report_controllables()
         for s in self.synts:
             ret += s.report_controllables() 
-        # no se si sera necesario quitar los duplicados 
-        # TODO habria que hacer una funcion report_controllables en el effects chain
         return ret 
-        
