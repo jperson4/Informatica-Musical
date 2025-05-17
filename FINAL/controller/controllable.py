@@ -15,7 +15,7 @@ class Controllable:
     
     def report_controllables(self):
         '''Devuelve la lista de todos sus objetos que implementan esta interfaz'''
-        return self
+        return [self]
     
     def get_name(self):
         '''Devuelve el nombre del objeto'''

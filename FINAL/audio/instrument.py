@@ -8,15 +8,19 @@ from view.gui import *
 from controller.controllable import Controllable
 
 class Instrument(PyoObject, Controllable):
-    def __init__(self, env, name="ins"):
+    def __init__(self, env, synts:list[Synt] = [], name="ins"):
         Controllable.__init__(self, name)
         ''' Instrumento que reproduce notas con un oscilador y una envolvente'''
-        self.synts = []  # lista de synts
-        self.synts.append(Synt(HarmTable([1, .75])))
+        self.synts = synts
+        if len(synts) == 0:
+            self.synts.append(Synt(HarmTable([1])))
+            
         self.mixer = Mixer(1, chnls=1, mul=1)  # mixer para mezclar las notas
-        self.mixer.addInput(0, self.synts[0])
-        self.mixer.setAmp(0, 0, 1)
-
+        
+        for i, synt in enumerate(self.synts):
+            self.mixer.addInput(i, synt)
+            self.mixer.setAmp(i, 0, 1)
+            
         """  gui = SynthGUI(self)
         gui.show_gui() """
     
@@ -27,6 +31,7 @@ class Instrument(PyoObject, Controllable):
         self.mixer.play()
         self.env.play()
         #self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
+        self._base_objs = self.mixer.getBaseObjects()
         #self._base_objs = self.effects.getBaseObjects()
 
     def note_on(self, note, velocity=1):
@@ -59,6 +64,12 @@ class Instrument(PyoObject, Controllable):
             self.synts[index].table.setWaveform(waveform)
         else:
             print(f"Error: Index {index} out of range for synts list.")
+            
+    def add_synt(self, synt):
+        self.synts.append(synt)
+    
+    def remove_synt(self, synt):
+        self.synts.remove(synt)
 
     def use_knob(self, value, action):
         ''' Reproduce un knob MIDI'''
@@ -69,7 +80,8 @@ class Instrument(PyoObject, Controllable):
         return ["amp"]
     
     def report_controllables(self):
-        ret = super().report_controllables()
+        ret = Controllable.report_controllables(self)
         for s in self.synts:
             ret += s.report_controllables() 
+        ret += self.env.report_controllables() 
         return ret 

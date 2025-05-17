@@ -67,7 +67,7 @@ class Synt(PyoObject, Controllable):
         return ["amp"]
 
     def report_controllables(self):
-        return super().report_controllables()
+        return Controllable.report_controllables(self)
 
     def set_table(self, table):
         self.table = table
