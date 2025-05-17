@@ -6,8 +6,8 @@ from controller.controllable import *
     estas clases que añaden la funcion copy
 '''
 class cAdsr(Adsr, Controllable):
-    def __init__(self, attack: float = 0.01, decay: float = 0.05, sustain: float = 0.707, release: float = 0.1, dur: int = 0, mul: int = 1, add: int = 0):
-        super().__init__(attack, decay, sustain, release, dur, mul)
+    def __init__(self, attack = 0.01, decay = 0.05, sustain = 0.707, release = 0.1, dur: int = 0, mul: int = 1, add: int = 0):
+        Adsr.__init__(self, attack, decay, sustain, release, dur, mul)
         self.attack_mod = 2 # maximo ataque?
         self.decay_mod = 2
         self.sustain_mod = 2
@@ -28,5 +28,6 @@ class cAdsr(Adsr, Controllable):
             
     def report_actions(self):
         return ["atk", "dec", "sus", "rel"]
+    
     
     
