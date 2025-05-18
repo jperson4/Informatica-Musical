@@ -5,13 +5,13 @@ class EffectsChain(PyoObject):
         super().__init__()
         self.output = input
         # super().__init__()
-        # self.list = list
+        self.list = list
         # self.input = input
         # self.input.stop()
         # self.output = None
         # self.setup()
         # self.input.play()
-        # self._base_objs = self.output.getBaseObjects()
+        self._base_objs = self.output.getBaseObjects()
         
     def setup(self):
         
