@@ -17,7 +17,7 @@ class Factory:
         
     def add_instrument(self, instrument:Instrument):
         self.controller.add_instrument(instrument)
-        self.out = self.out + instrument
+        # self.out = self.out + instrument
         instrument.out() # apaño?
         # self.inst_set.add(instrument)
         self.inst_set.append(instrument)
