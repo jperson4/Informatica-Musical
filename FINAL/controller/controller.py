@@ -48,13 +48,15 @@ class Controller:
         ''' Elimina una funcion de un knob'''
         self.knob_actions[knob].remove((controllable, action)) # ej: (env, "atk")
 
-    def note_on(self, note, velocity=1, id=0):
+    def note_on(self, note, velocity=1):
         ''' Reproduce una nota MIDI'''
-        self.ins[id].note_on(note, velocity)
+        for i in self.ins:
+            i.note_on(note, velocity)
     
-    def note_off(self, note, id=0):
+    def note_off(self, note):
         ''' Detiene una nota MIDI'''
-        self.ins[id].note_off(note)
+        for i in self.ins:
+            i.note_off(note)
 
     def play_knob(self, knob, value):
         ''' Reproduce un knob MIDI'''
