@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     # Crear controlables para cada valor de ADSR y asignarlos al controlador
 
-    """aqui habria que hacer un hilo para el controller y otro para la factory"""
+    """aqui habria que hacer un hilo para la gui del controller y otro para la factory"""
 
     midi_thread = threading.Thread(target=midi_listener, daemon=True)
     midi_thread.start()
