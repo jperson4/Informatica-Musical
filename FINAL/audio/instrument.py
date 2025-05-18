@@ -6,6 +6,7 @@ from audio.effectschain import *
 from audio.effect import *
 from view.gui import *
 from controller.controllable import Controllable
+from time import sleep
 
 class Instrument(PyoObject, Controllable):
     def __init__(self, env, synts:list[Synt] = [], name="ins"):
@@ -30,9 +31,11 @@ class Instrument(PyoObject, Controllable):
         self.mixer.setMul(self.env)  # Apply the ADSR envelope to the mixer
         self.mixer.play()
         self.env.play()
-        #self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
-        self._base_objs = self.mixer.getBaseObjects()
-        #self._base_objs = self.effects.getBaseObjects()
+        
+        sleep(.5) # ver si esto va
+        self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
+        # self._base_objs = self.mixer.getBaseObjects()
+        self._base_objs = self.effects.getBaseObjects()
 
     def note_on(self, note, velocity=1):
         ''' Envia la nota traducida a hz a un synt'''
@@ -47,12 +50,15 @@ class Instrument(PyoObject, Controllable):
         self.env.stop()  # Release the ADSR envelope
             
     def out(self):
-        return self.mixer.out()
+        # return self.mixer.out()
+        return self.effects.out()
     
     def play(self):
+        # return self.mixer.play()
         return self.effects.play()
     
     def stop(self):
+        # return self.mixer.stop()
         return self.effects.stop()
     
     def sig(self):
