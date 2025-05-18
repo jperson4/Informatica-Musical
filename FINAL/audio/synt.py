@@ -25,8 +25,6 @@ class Synt(PyoObject, Controllable):
         ''' Crea una copia del oscilador y las pone a sonar añadiendolas al mixer'''
         print(f"note_on {id}")
         _osc = Osc(self.table, freq=freq, mul=self.amp)
-        
-        _osc.play()
         _env = env.copy()
         self.envmap[id] = _env
         self.playingNotes[id] = _osc
@@ -34,6 +32,7 @@ class Synt(PyoObject, Controllable):
         if id in self.playingNotes:
             self.mixer.delInput(id)
         self.playingNotes[id] = _osc
+        _osc.play()
         _env.play()
         self.mixer.addInput(id, _osc * _env)
         self.mixer.setAmp(id, 0, 1)
