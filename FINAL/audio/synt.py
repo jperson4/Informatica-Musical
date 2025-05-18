@@ -17,28 +17,44 @@ class Synt(PyoObject, Controllable):
         self.amp = Sig(amp)
 
         self.playingNotes = {}
+        self.envmap = {}
         self.mixer = Mixer(1, chnls=1, mul=1)  # mixer para mezclar las notas
         self._base_objs = self.mixer.getBaseObjects()
 
-    def note_on(self, id, freq, velocity=1):
+    def note_on(self, id, freq, env, velocity=1):
         ''' Crea una copia del oscilador y las pone a sonar añadiendolas al mixer'''
         print(f"note_on {id}")
-        _id = id
         _osc = Osc(self.table, freq=freq, mul=self.amp)
+        
         _osc.play()
+        _env = env.copy()
+        self.envmap[id] = _env
+        self.playingNotes[id] = _osc
+        TrigFunc(_env["trig"], lambda: self.remove_decayed(id)) # elimina la nota cuando decaiga
         if id in self.playingNotes:
             self.mixer.delInput(id)
-        self.playingNotes[_id] = _osc
-        self.mixer.addInput(_id, _osc)
-        self.mixer.setAmp(_id, 0, 1)
+        self.playingNotes[id] = _osc
+        _env.play()
+        self.mixer.addInput(id, _osc * _env)
+        self.mixer.setAmp(id, 0, 1)
 
     def note_off(self, id):
-        ''' Detiene el oscilador y lo elimina del mixer'''
+        ''' Dice a la envolvente que entre en modo decay'''
+        self.envmap[id].stop()
+        # if id in self.playingNotes:
+        #     print(f"note_off {id}")
+        #     self.playingNotes[id].stop()
+        #     self.mixer.delInput(id)
+        #     del self.playingNotes[id]
+
+    def remove_decayed(self, id):
+        ''' Elimina las notas que ya han acabado'''
         if id in self.playingNotes:
-            print(f"note_off {id}")
+            print(f"remove note {id}")
             self.playingNotes[id].stop()
             self.mixer.delInput(id)
             del self.playingNotes[id]
+            del self.envmap[id]
 
     def out(self):
         "Sends the synth's signal to the audio output and return the object itself."

@@ -28,9 +28,9 @@ class Instrument(PyoObject, Controllable):
         # Create an ADSR envelope
         #self.adsr = cAdsr(attack=0.01, decay=0.2, sustain=0.7, release=0.5, mul=1)
         self.env = env
-        self.mixer.setMul(self.env)  # Apply the ADSR envelope to the mixer
+        # self.mixer.setMul(self.env)  # Apply the ADSR envelope to the mixer
         self.mixer.play()
-        self.env.play()
+        # self.env.play()
         
         sleep(.5) # ver si esto va
         self.effects = EffectsChain([STRev(Sine(1))], self.mixer)
@@ -41,13 +41,13 @@ class Instrument(PyoObject, Controllable):
         ''' Envia la nota traducida a hz a un synt'''
         freq = note_to_Hz(note)
         for s in self.synts:
-            s.note_on(note, freq, velocity)
-        self.env.play()  # Trigger the ADSR envelope
+            s.note_on(note, freq, velocity, self.env)
+        # self.env.play()  # Trigger the ADSR envelope
             
     def note_off(self, note):
         for s in self.synts:
             s.note_off(note)
-        self.env.stop()  # Release the ADSR envelope
+        # self.env.stop()  # Release the ADSR envelope
             
     def out(self):
         # return self.mixer.out()
