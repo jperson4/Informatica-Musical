@@ -36,6 +36,8 @@ class Factory:
         instrument.remove_synt(synt)
         self.controller.refresh()
 
+    """también hace falta una funcion para manejar la cadena de efectos"""
+
     # def play(self):
     #     # self.out.out()
         

@@ -47,4 +47,7 @@ class EffectsChain(PyoObject):
     
     def sig(self):
         return self.output.sig()
+    
+    def getEffects(self):
+        return self.list[1:]
         

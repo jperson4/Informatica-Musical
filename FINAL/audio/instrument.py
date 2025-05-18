@@ -76,6 +76,10 @@ class Instrument(PyoObject, Controllable):
     
     def remove_synt(self, synt):
         self.synts.remove(synt)
+        
+    def set_effects(self, effectschain):
+        """recibe una lista de objetos y los establece como effectschain"""
+        self.effects = EffectsChain(effectschain, self.mixer)
 
     def use_knob(self, value, action):
         ''' Reproduce un knob MIDI'''
@@ -90,4 +94,8 @@ class Instrument(PyoObject, Controllable):
         for s in self.synts:
             ret += s.report_controllables() 
         ret += self.env.report_controllables() 
+
+        for e in self.effects.getEffects():
+            if isinstance(e, Controllable):
+                ret += e.report_controllables()
         return ret 
