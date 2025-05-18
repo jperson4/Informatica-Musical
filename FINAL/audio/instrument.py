@@ -41,7 +41,7 @@ class Instrument(PyoObject, Controllable):
         ''' Envia la nota traducida a hz a un synt'''
         freq = note_to_Hz(note)
         for s in self.synts:
-            s.note_on(note, freq, velocity, self.env)
+            s.note_on(note, freq, self.env, velocity)
         # self.env.play()  # Trigger the ADSR envelope
             
     def note_off(self, note):
