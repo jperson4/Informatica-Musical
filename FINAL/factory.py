@@ -11,14 +11,14 @@ class Factory:
     def __init__(self, controller:Controller):
         self.controller = controller
         self.out = Sig(0, 0)
-        self.out.out() # suena
+        # self.out.out() # no suena
         # self.inst_set = set()
         self.inst_set = []
         
     def add_instrument(self, instrument:Instrument):
         self.controller.add_instrument(instrument)
         self.out = self.out + instrument
-        # instrument.out() # apaño?
+        instrument.out() # apaño?
         # self.inst_set.add(instrument)
         self.inst_set.append(instrument)
         
@@ -36,10 +36,10 @@ class Factory:
         instrument.remove_synt(synt)
         self.controller.refresh()
 
-    def play(self):
-        self.out.out()
+    # def play(self):
+    #     # self.out.out()
         
-    def pause(self):
-        self.out.stop()
+    # def pause(self):
+    #     # self.out.stop()
         
     
