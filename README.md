@@ -1,4 +1,4 @@
-# Práticas de python de la asignatura Informátrica Musical
+# Práticas de python de la asignatura Informática Musical
 Se trataba de hacer un sintetizador.
 
 Nosotros desarrollamos esta arquitectura inspirandonos en la programacion funcional. De esta forma conseguíamos un sintetizador en el cual todo se podía modular ininitamente y se podían sumar y restar ondas con toral libertad.
